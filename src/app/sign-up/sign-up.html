@@ -1,0 +1,47 @@
+<app-header />
+<main class="auth-layout">
+  <section class="auth-preview">
+    <p class="eyebrow">A fresh start</p>
+    <h1>Your personal growth workspace.</h1>
+    <p>Create an account, then decide which Instagram Creator account to authorize.</p>
+    <div class="placeholder">
+      Your insights, ideas and content plans.<br />A little more connected.
+    </div>
+  </section>
+  <section class="panel form-card">
+    <h2>Get started</h2>
+    <p>Frontend preview ? use any valid email and password. No account is created.</p>
+    <form (submit)="submit($event)">
+      <label for="name">Display name</label
+      ><input
+        id="name"
+        name="name"
+        autocomplete="name"
+        placeholder="Your name"
+        required
+        (input)="store.displayName.set($any($event.target).value)"
+      /><label for="email">Email address</label
+      ><input
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        placeholder="name@example.com"
+        required
+      /><label for="password">Password</label
+      ><input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="new-password"
+        placeholder="Create a password"
+        required
+        minlength="8"
+      /><button class="primary" type="submit">Create Trellis account</button>
+    </form>
+    <p style="margin-top: 24px">
+      Already have an account? <a class="text-link" routerLink="/sign-in">Sign in</a>
+    </p>
+  </section>
+</main>
+<app-footer />

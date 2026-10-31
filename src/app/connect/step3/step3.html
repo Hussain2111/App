@@ -1,0 +1,28 @@
+<header class="public-header">
+  <a class="brand" routerLink="/"><span class="brand-mark">t</span>trellis</a
+  ><small>Account setup in progress</small><a class="button" routerLink="/sign-in">Sign out</a>
+</header>
+<main class="step-page">
+  <p class="eyebrow">Step 3 of 3 ? Sync</p>
+  <div class="progress" aria-hidden="true">
+    <span class="done"></span><span class="done"></span><span class="done"></span>
+  </div>
+  <h1>Preparing your workspace</h1>
+  <p>We will import the data available under your authorized permissions.</p>
+  <section class="panel">
+    <h2>Data availability checklist</h2>
+    <div class="row">
+      <span>Account details</span><span class="badge">{{ status }}</span>
+    </div>
+    <div class="row">
+      <span>Media + captions</span><span class="badge">{{ status }}</span>
+    </div>
+    <div class="row"><span>Insights + history</span><span class="badge">May be limited</span></div>
+  </section>
+  <p role="status">This preview simulates connection only. Metrics remain unavailable.</p>
+  <div class="actions">
+    <button class="primary" (click)="finish()">Open Dashboard</button
+    ><button (click)="retry()">Retry sync</button
+    ><a class="text-link" routerLink="/step1">Reconnect</a>
+  </div>
+</main>

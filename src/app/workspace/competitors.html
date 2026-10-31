@@ -1,0 +1,103 @@
+<p class="eyebrow">Competitors / {{ compare ? 'Compare' : 'Discover' }}</p>
+<div class="page-title">
+  <div>
+    <h1>{{ compare ? 'Compare performance' : 'Find relevant competitors' }}</h1>
+    <p>
+      {{
+        compare
+          ? 'Useful perspective starts with comparable evidence.'
+          : 'Find accounts in your niche, then understand what makes them relevant.'
+      }}
+    </p>
+  </div>
+</div>
+<nav class="tabs" aria-label="Competitor sections">
+  <a routerLink="/competitors" [class.active]="!compare">Discover</a
+  ><a routerLink="/competitors/compare" [class.active]="compare">Comparison preview</a>
+</nav>
+@if (!compare) {
+  <section class="panel">
+    <form (ngSubmit)="searched = true">
+      <label for="account-search">Professional skincare account</label>
+      <div class="chat-compose">
+        <input
+          id="account-search"
+          name="account"
+          [(ngModel)]="query"
+          placeholder="Search by Instagram username..."
+          required
+        /><button class="primary" type="submit">Search accounts</button>
+      </div>
+    </form>
+  </section>
+  @if (searched) {
+    <section class="panel">
+      <div class="row">
+        <div>
+          <p class="eyebrow">Qualification result / Account</p>
+          <h2>{{ query }}</h2>
+        </div>
+        <span class="badge">Unknown until verified</span>
+      </div>
+      <p>Search is a preview. No account or published posts have been retrieved.</p>
+      <h3>Five latest posts (publication date order)</h3>
+      <div
+        class="grid five-posts"
+        style="grid-template-columns: repeat(auto-fit, minmax(125px, 1fr))"
+      >
+        @for (post of [1, 2, 3, 4, 5]; track post) {
+          <div class="empty" style="min-height: 130px">
+            <h3>Post {{ post }}</h3>
+            <small>Niche: unknown<br />Published: unavailable</small>
+          </div>
+        }
+      </div>
+      <p style="margin-top: 20px">
+        All five latest posts must be verified as skincare-related to qualify. Four of five fails;
+        missing or ambiguous evidence stays Unknown.
+      </p>
+      <button disabled>Compare — qualification required</button>
+    </section>
+  } @else {
+    <div class="empty" style="margin-top: 24px">
+      <h2>A relevant comparison starts here.</h2>
+      <p>Search for an account to review qualification and evidence availability.</p>
+    </div>
+  }
+} @else {
+  <div class="notice">
+    No qualified competitor selected. This is a layout preview with unavailable measures.
+  </div>
+  <div class="grid equal">
+    <section class="panel">
+      <p class="eyebrow">Your account</p>
+      <h2>Authorized profile</h2>
+      <p>No verified account observations loaded.</p>
+    </section>
+    <section class="panel" style="margin: 0">
+      <p class="eyebrow">Qualified competitor</p>
+      <h2>No candidate qualified</h2>
+      <p>Requires evidence for five of five latest posts.</p>
+    </section>
+  </div>
+  <section class="panel" style="margin-top: 24px">
+    <h2>Comparable measures</h2>
+    @for (
+      metric of ['Reach', 'Views', 'Public engagement', 'Content format', 'Observation period'];
+      track metric
+    ) {
+      <div class="row">
+        <span>{{ metric }}</span
+        ><small>Unavailable / not comparable</small>
+      </div>
+    }
+  </section>
+  <section class="panel">
+    <h2>Comparative insight</h2>
+    <p>
+      No recommendation can be made without equivalent accessible measures, matching time windows
+      and per-post evidence.
+    </p>
+    <a class="button" routerLink="/competitors">Find a competitor</a>
+  </section>
+}

@@ -1,12 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
+import { RouterTestingHarness } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
+import { routes } from './app.routes';
+import { Landing } from './features/landing/landing';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-    })
-      .compileComponents();
+    }).compileComponents();
   });
 
   it('should create the app', () => {
@@ -14,11 +17,22 @@ describe('App', () => {
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
+});
 
-  it('should render title', async () => {
-    const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, Trellis');
+// Test
+
+describe('App Routing', () => {
+  let harness: RouterTestingHarness;
+  beforeEach(async () => {
+    TestBed.configureTestingModule({
+      imports: [App],
+      providers: [provideRouter(routes)],
+    });
+    harness = await RouterTestingHarness.create('/');
+  });
+
+  it('should navigate to the home page', async () => {
+    const activeLink = await harness.navigateByUrl('/', Landing);
+    expect(activeLink).toBeInstanceOf(Landing);
   });
 });

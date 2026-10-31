@@ -1,0 +1,62 @@
+<p class="eyebrow">Your creative companion</p>
+<div class="page-title">
+  <div>
+    <h1>A little help with your next move.</h1>
+    <p>Think through an idea, ask a question, or find a starting point.</p>
+  </div>
+  <span class="badge">AI provider not connected</span>
+</div>
+<section class="panel chat-layout">
+  <aside class="conversation-list">
+    <button class="primary" (click)="newChat()">+ New conversation</button>
+    <p class="eyebrow" style="margin-top: 24px">Conversations</p>
+    @for (conversation of conversations; track conversation.id) {
+      <div class="actions" style="gap: 4px; flex-wrap: nowrap">
+        <button
+          [style.background]="active === conversation.id ? '#edf2e9' : 'white'"
+          (click)="active = conversation.id"
+        >
+          {{ conversation.title }}</button
+        ><button
+          style="width: auto"
+          [attr.aria-label]="'Delete ' + conversation.title"
+          (click)="deleteChat(conversation.id)"
+        >
+          ×
+        </button>
+      </div>
+    }
+    <small>Each conversation keeps its own context. Messages reset on reload.</small>
+  </aside>
+  <div class="chat-main">
+    <div class="messages" role="log" aria-live="polite">
+      @if (!current.messages.length) {
+        <div class="empty" style="min-height: 300px">
+          <span class="brand-mark" aria-hidden="true">t</span>
+          <h2>What are you working on?</h2>
+          <p>Start with an idea or question. Account facts require verified sources.</p>
+          <button (click)="input = 'Help me outline a skincare carousel'">
+            Help me outline a carousel
+          </button>
+        </div>
+      }
+      @for (message of current.messages; track $index) {
+        <div class="message" [class.user]="message.role === 'user'">
+          <small>{{ message.role === 'user' ? 'You' : 'Trellis · Demo response' }}</small>
+          <div>{{ message.text }}</div>
+        </div>
+      }
+    </div>
+    <form class="chat-compose" (ngSubmit)="send()">
+      <label for="chat-input" class="sr-only">Message</label
+      ><input
+        id="chat-input"
+        name="message"
+        [(ngModel)]="input"
+        placeholder="Ask Trellis something..."
+        autocomplete="off"
+      /><button class="primary" type="submit" [disabled]="!input.trim()">Send ↑</button>
+    </form>
+    <small>Preview only · No AI request is sent · No cross-chat memory is enabled</small>
+  </div>
+</section>

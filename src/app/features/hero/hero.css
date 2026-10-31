@@ -1,0 +1,82 @@
+.hero {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 65px;
+  align-items: center;
+  padding: 85px 32px;
+}
+.hero h1 {
+  font-family: Georgia, serif;
+  font-size: 56px;
+  font-weight: 400;
+  letter-spacing: -2px;
+}
+.hero p:not(.eyebrow) {
+  max-width: 410px;
+  font-size: 16px;
+}
+.hero .actions {
+  margin: 28px 0 24px;
+}
+.preview {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 26px;
+  box-shadow: 12px 16px 0 #e9eddf;
+  transform: rotate(-1deg);
+}
+.preview-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 36px;
+}
+.preview-top .brand {
+  font-size: 18px;
+}
+.preview-opportunity {
+  background: #eff3e8;
+  border-radius: 7px;
+  padding: 22px;
+  margin: 20px 0;
+}
+.preview-opportunity h3 {
+  margin-top: 18px;
+}
+.preview-opportunity p {
+  font-size: 13px !important;
+  margin: 0;
+}
+.mini {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 16px;
+  font-size: 12px;
+}
+.mini b {
+  display: block;
+  font-size: 26px;
+  font-weight: 400;
+  margin-top: 20px;
+}
+.preview small {
+  display: block;
+  margin-top: 22px;
+  font-size: 10px;
+}
+@media (max-width: 800px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 50px 24px;
+    gap: 40px;
+  }
+  .hero h1 {
+    font-size: 42px;
+  }
+  .preview .three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

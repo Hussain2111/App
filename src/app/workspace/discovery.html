@@ -1,0 +1,143 @@
+<p class="eyebrow">Hot Topics / {{ view }}</p>
+<div class="page-title">
+  <div>
+    <h1>
+      {{
+        view === 'saved'
+          ? 'Saved ideas'
+          : view === 'updates'
+            ? 'Instagram & Edits updates'
+            : 'Find your next idea'
+      }}
+    </h1>
+    <p>
+      {{
+        view === 'saved'
+          ? 'A little inspiration, kept for later.'
+          : view === 'updates'
+            ? 'Official news, with its source and context.'
+            : 'A fresh perspective for your next piece of content.'
+      }}
+    </p>
+  </div>
+</div>
+<nav class="tabs" aria-label="Hot Topics sections">
+  <a routerLink="/hot-topics" [class.active]="view === 'discover'">Discover</a
+  ><a routerLink="/hot-topics/saved" [class.active]="view === 'saved'"
+    >Saved ideas ({{ store.savedIdeas().length }})</a
+  ><a routerLink="/hot-topics/updates" [class.active]="view === 'updates'">Official updates</a>
+</nav>
+@switch (view) {
+  @case ('discover') {
+    <div class="grid two">
+      <section class="panel idea-card">
+        @if (idea) {
+          <p class="eyebrow">Idea {{ index + 1 }} / Sample suggestion</p>
+          <div class="idea-number" aria-hidden="true">0{{ index + 1 }}</div>
+          <span class="badge">{{ idea.format }} · Skincare</span>
+          <h2 style="margin-top: 20px">{{ idea.title }}</h2>
+          <p>{{ idea.description }}</p>
+          <div class="row">
+            <div>
+              <h3>Why this idea?</h3>
+              <p>
+                Illustrative concept only. No trend, account evidence or performance prediction is
+                attached.
+              </p>
+              <small
+                >Source: demo content · Freshness: unverified · Relevance: not personalized</small
+              >
+            </div>
+          </div>
+          <div class="actions" style="margin-top: 24px">
+            <button (click)="next()">Pass</button
+            ><button class="primary" (click)="save()">♡ Save</button
+            ><button (click)="discuss(idea.title)">Discuss AI</button
+            ><button (click)="plan(idea.title)">Plan ↗</button>
+          </div>
+        } @else {
+          <div class="empty">
+            <h2>All caught up.</h2>
+            <p>You have seen every sample idea in this filter.</p>
+            <button (click)="index = 0">Explore again</button
+            ><a class="text-link" routerLink="/hot-topics/saved">Open saved ideas</a>
+          </div>
+        }
+      </section>
+      <aside class="stack">
+        <section class="panel">
+          <p class="eyebrow">Make it relevant</p>
+          <h2>Filters</h2>
+          <label for="niche">Niche</label
+          ><select id="niche">
+            <option>Skincare</option></select
+          ><label for="idea-format">Format</label
+          ><select id="idea-format" [(ngModel)]="format" (ngModelChange)="index = 0">
+            <option>All formats</option>
+            <option>Carousel</option>
+            <option>Reel</option>
+            <option>Image</option></select
+          ><label for="recency">Recency</label
+          ><select id="recency" [(ngModel)]="recency">
+            <option>Any time</option>
+            <option>Last 7 days</option>
+            <option>Last 30 days</option></select
+          ><small
+            >Sample ideas have no observation date. Recency filtering becomes available with live
+            sources.</small
+          >
+        </section>
+        <section class="panel">
+          <h2>Worth coming back to.</h2>
+          <p>Keep the ideas that feel like you, then discuss them or start a draft.</p>
+          <a class="text-link" routerLink="/hot-topics/saved">Open saved ideas →</a>
+        </section>
+      </aside>
+    </div>
+  }
+  @case ('saved') {
+    @if (!store.savedIdeas().length) {
+      <div class="panel empty">
+        <h2>Your next idea is out there.</h2>
+        <p>Save an idea from Discover and it will appear here.</p>
+        <a class="button primary" routerLink="/hot-topics">Discover ideas</a>
+      </div>
+    }
+    @for (idea of store.savedIdeas(); track idea) {
+      <article class="panel">
+        <div class="page-title" style="margin: 0">
+          <div>
+            <span class="badge">Saved this session · Sample idea</span>
+            <h2 style="margin-top: 16px">{{ idea }}</h2>
+            <p>No verified evidence or observed date attached.</p>
+          </div>
+          <div class="actions">
+            <button (click)="discuss(idea)">Discuss</button
+            ><button class="primary" (click)="plan(idea)">Add to planner</button
+            ><button aria-label="Remove saved idea" (click)="remove(idea)">Remove</button>
+          </div>
+        </div>
+      </article>
+    }
+  }
+  @case ('updates') {
+    <div class="tabs" aria-label="Update filters">
+      @for (filter of ['All', 'Instagram', 'Edits']; track filter) {
+        <button [class.active]="updateFilter === filter" (click)="updateFilter = filter">
+          {{ filter }}
+        </button>
+      }
+    </div>
+    <section class="panel">
+      <div class="empty">
+        <span class="badge">{{ updateFilter }} / Official sources</span>
+        <h2>No verified updates loaded</h2>
+        <p>
+          Updates will show the publisher, original source link, publication date and retrieval
+          date. Trellis interpretation will be labeled separately.
+        </p>
+        <small>No news has been fetched in this frontend preview.</small>
+      </div>
+    </section>
+  }
+}

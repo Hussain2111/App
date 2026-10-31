@@ -1,0 +1,184 @@
+<p class="eyebrow">
+  Dashboard
+  @if (view !== 'overview') {
+    / {{ view }}
+  }
+</p>
+<div class="page-title">
+  <div>
+    <h1>
+      {{
+        view === 'analytics'
+          ? 'Performance & history'
+          : view === 'audit'
+            ? 'Profile audit & recommendations'
+            : 'Your next opportunity'
+      }}
+    </h1>
+    <p>
+      {{
+        view === 'overview'
+          ? 'A little clarity on where you are. A direction for what comes next.'
+          : 'Understand the evidence behind your next move.'
+      }}
+    </p>
+  </div>
+  <button (click)="refresh()">↻ Refresh now</button>
+</div>
+<nav class="tabs" aria-label="Dashboard sections">
+  <a routerLink="/dashboard" [class.active]="view === 'overview'">Overview</a
+  ><a routerLink="/dashboard/analytics" [class.active]="view === 'analytics'">Analytics</a
+  ><a routerLink="/dashboard/audit" [class.active]="view === 'audit'">Profile audit</a
+  ><a routerLink="/dashboard/planner">Content Planner</a>
+</nav>
+@if (!store.connected()) {
+  <div class="notice">
+    <span>Connect your Creator account to see insights grounded in your data.</span
+    ><a class="button primary" routerLink="/step1">Connect Instagram</a>
+  </div>
+}
+@switch (view) {
+  @case ('overview') {
+    <section class="panel" style="margin-bottom: 24px; background: #edf2e6">
+      <p class="eyebrow">01 / Opportunities</p>
+      <div class="grid two">
+        <div>
+          <h2>Your next actionable recommendation</h2>
+          <p>
+            Once observations are available, discover an opportunity with evidence, rationale and a
+            clear next step.
+          </p>
+          <a class="button" routerLink="/dashboard/audit">Explore profile audit ↗</a>
+        </div>
+        <div class="empty">
+          <span class="badge">Awaiting account evidence</span>
+          <p>
+            No recommendation available yet. You can still explore sample ideas and plan a draft.
+          </p>
+        </div>
+      </div>
+    </section>
+    <div class="row">
+      <p class="eyebrow" style="margin: 0">02 / Performance</p>
+      <a class="text-link" routerLink="/dashboard/analytics">View details ↗</a>
+    </div>
+    <div class="grid four" style="margin: 20px 0 28px">
+      @for (metric of ['Followers', 'Reach', 'Views', 'Engagement']; track metric) {
+        <article class="panel metric">
+          <h3>{{ metric }}</h3>
+          <strong>—</strong><small>No observations available</small>
+        </article>
+      }
+    </div>
+    <div class="grid equal">
+      <a class="panel" routerLink="/dashboard/audit"
+        ><p class="eyebrow">03 / Profile audit</p>
+        <h2>A fresh look at your profile ↗</h2>
+        <p>Biography, content patterns and opportunities.</p>
+        <span class="badge">Evidence pending</span></a
+      ><a class="panel" style="margin: 0" routerLink="/dashboard/planner"
+        ><p class="eyebrow">04 / Content Planner</p>
+        <h2>Make space for your next post ↗</h2>
+        <p>
+          {{
+            store.hasDraft()
+              ? 'Your saved draft is ready to continue.'
+              : 'Start a draft, choose a format and pick a day.'
+          }}
+        </p>
+        <span class="badge">{{
+          store.hasDraft() ? '1 saved draft' : 'No planned posts yet'
+        }}</span></a
+      >
+    </div>
+    <p style="margin-top: 24px">
+      <small
+        >Last observed: unavailable · Last checked: never · Source: no connected provider</small
+      >
+    </p>
+  }
+  @case ('analytics') {
+    <div class="actions" style="margin-bottom: 24px">
+      <label for="period" style="margin: 0">Period</label
+      ><select
+        id="period"
+        style="width: auto; margin: 0"
+        (change)="period = $any($event.target).value"
+      >
+        <option>Last 30 days</option>
+        <option>Last 7 days</option>
+        <option>Last 90 days</option></select
+      ><button
+        (click)="
+          store.notice.set('Comparison unavailable: neither period has verified observations.')
+        "
+      >
+        Compare periods</button
+      ><button (click)="coverage = !coverage">Coverage info</button>
+    </div>
+    @if (coverage) {
+      <div class="notice">
+        {{ period }} · No historical observations or audience permissions available. Missing values
+        are unavailable, rather than zero.
+      </div>
+    }
+    <div class="grid two">
+      <section class="panel">
+        <h2>Historic metric trend</h2>
+        <div class="empty">
+          <h3>No observations yet</h3>
+          <p>
+            A trend will appear here when verified historical data is available for
+            {{ period.toLowerCase() }}.
+          </p>
+        </div>
+      </section>
+      <section class="panel" style="margin: 0">
+        <h2>Metric freshness</h2>
+        <div class="row"><span>Last observed</span><small>Unavailable</small></div>
+        <div class="row"><span>Last checked</span><small>Never</small></div>
+        <div class="row"><span>Coverage</span><small>Unavailable</small></div>
+      </section>
+    </div>
+    <div class="grid three" style="margin-top: 24px">
+      @for (
+        title of ['Follower changes', 'Top posts / period comparison', 'Audience breakdown'];
+        track title
+      ) {
+        <section class="panel" style="margin: 0">
+          <h3>{{ title }}</h3>
+          <p>No verified data available for the selected period.</p>
+        </section>
+      }
+    </div>
+  }
+  @case ('audit') {
+    <div class="grid equal">
+      <section class="panel">
+        <p class="eyebrow">Your profile</p>
+        <h2>Profile / bio snapshot</h2>
+        <div class="placeholder">
+          Profile, biography and niche<br />Awaiting authorized account data
+        </div>
+        <p style="margin-top: 18px">
+          Activity and creator voice observations will appear with their sources.
+        </p>
+      </section>
+      <section class="panel" style="margin: 0">
+        <p class="eyebrow">Recommended improvement</p>
+        <h2>Good advice starts with evidence.</h2>
+        <p>There is not enough account history to recommend a specific change yet.</p>
+        <div class="row"><span>Evidence</span><span class="badge">Unavailable</span></div>
+        <div class="row"><span>Freshness</span><span class="badge">Not observed</span></div>
+        <a class="button" style="margin-top: 24px" routerLink="/chat">Discuss with Chat ↗</a>
+      </section>
+    </div>
+    <section class="panel" style="margin-top: 24px">
+      <h2>Content pattern observations</h2>
+      <p>
+        Formats, recent posts and relevant older posts will be reviewed once the account is
+        connected. No content patterns have been inferred.
+      </p>
+    </section>
+  }
+}

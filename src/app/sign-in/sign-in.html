@@ -1,0 +1,41 @@
+<app-header />
+<main class="auth-layout">
+  <section class="auth-preview">
+    <p class="eyebrow">Member access</p>
+    <h1>Welcome back.</h1>
+    <p>Continue where you left off. Your ideas and next steps, all in one place.</p>
+    <div class="placeholder">
+      Your insights, ideas and content plans.<br />A little more connected.
+    </div>
+  </section>
+  <section class="panel form-card">
+    <h2>Sign in</h2>
+    <p>Frontend preview ? use any valid email and password. No account is created.</p>
+    <form (submit)="submit($event)">
+      <label for="email">Email address</label
+      ><input
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        placeholder="name@example.com"
+        required
+      /><label for="password">Password</label
+      ><input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Enter your password"
+        required
+        minlength="8"
+      />
+      <p><a class="text-link" routerLink="/recover">Forgot password?</a></p>
+      <button class="primary" type="submit">Sign in</button>
+    </form>
+    <p style="margin-top: 24px">
+      New to Trellis? <a class="text-link" routerLink="/sign-up">Create account</a>
+    </p>
+  </section>
+</main>
+<app-footer />
