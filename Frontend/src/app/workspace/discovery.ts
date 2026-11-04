@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { DemoStore } from '../demo-store';
 
 @Component({
   selector: 'app-discovery',
@@ -9,7 +8,6 @@ import { DemoStore } from '../demo-store';
   templateUrl: './discovery.html',
 })
 export class Discovery {
-  store = inject(DemoStore);
   route = inject(ActivatedRoute);
   router = inject(Router);
   get view(): string {
@@ -47,19 +45,6 @@ export class Discovery {
   }
   next() {
     this.index++;
-  }
-  remove(title: string) {
-    this.store.savedIdeas.update((items) => items.filter((item) => item !== title));
-  }
-  save() {
-    if (this.idea) {
-      this.store.saveIdea(this.idea.title);
-      this.next();
-    }
-  }
-  plan(title: string) {
-    this.store.draft.update((d) => ({ ...d, hook: title }));
-    this.router.navigateByUrl('/dashboard/planner/draft');
   }
   discuss(title: string) {
     this.router.navigate(['/chat'], { queryParams: { idea: title } });

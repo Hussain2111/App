@@ -55,7 +55,7 @@ export class PublicInfo {
     return (
       {
         privacy:
-          'This frontend preview stores demo changes only in memory. No account, Instagram data or chat message is sent to a backend. A production privacy policy will be added before launch.',
+          'No backend is connected. Editable inputs are not saved. A production privacy policy will be added before launch.',
         terms:
           'This is a wireframe prototype for exploring Trellis. Production terms will be added before launch.',
         contact:

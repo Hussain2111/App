@@ -1,6 +1,7 @@
 <header class="public-header">
   <a class="brand" routerLink="/"><span class="brand-mark">t</span>trellis</a
-  ><small>Account setup in progress</small><a class="button" routerLink="/sign-in">Sign out</a>
+  ><small>Account setup in progress</small
+  ><a class="button" routerLink="/sign-in">Sign-in screen</a>
 </header>
 <main class="step-page">
   <p class="eyebrow">Step 3 of 3 ? Sync</p>
@@ -19,10 +20,10 @@
     </div>
     <div class="row"><span>Insights + history</span><span class="badge">May be limited</span></div>
   </section>
-  <p role="status">This preview simulates connection only. Metrics remain unavailable.</p>
+  <p role="status">Not connected: no account data has been imported.</p>
   <div class="actions">
-    <button class="primary" (click)="finish()">Open Dashboard</button
-    ><button (click)="retry()">Retry sync</button
+    <a class="button primary" routerLink="/dashboard">Preview Dashboard</a
+    ><button disabled title="Not connected">Retry sync</button
     ><a class="text-link" routerLink="/step1">Reconnect</a>
   </div>
 </main>

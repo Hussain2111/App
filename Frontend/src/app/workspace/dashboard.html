@@ -23,7 +23,7 @@
       }}
     </p>
   </div>
-  <button (click)="refresh()">↻ Refresh now</button>
+  <button disabled title="Not connected">↻ Refresh now</button>
 </div>
 <nav class="tabs" aria-label="Dashboard sections">
   <a routerLink="/dashboard" [class.active]="view === 'overview'">Overview</a
@@ -31,12 +31,11 @@
   ><a routerLink="/dashboard/audit" [class.active]="view === 'audit'">Profile audit</a
   ><a routerLink="/dashboard/planner">Content Planner</a>
 </nav>
-@if (!store.connected()) {
-  <div class="notice">
-    <span>Connect your Creator account to see insights grounded in your data.</span
-    ><a class="button primary" routerLink="/step1">Connect Instagram</a>
-  </div>
-}
+
+<div class="notice">
+  <span>Connect your Creator account to see insights grounded in your data.</span
+  ><a class="button primary" routerLink="/step1">Connect Instagram</a>
+</div>
 @switch (view) {
   @case ('overview') {
     <section class="panel" style="margin-bottom: 24px; background: #edf2e6">
@@ -79,16 +78,8 @@
       ><a class="panel" style="margin: 0" routerLink="/dashboard/planner"
         ><p class="eyebrow">04 / Content Planner</p>
         <h2>Make space for your next post ↗</h2>
-        <p>
-          {{
-            store.hasDraft()
-              ? 'Your saved draft is ready to continue.'
-              : 'Start a draft, choose a format and pick a day.'
-          }}
-        </p>
-        <span class="badge">{{
-          store.hasDraft() ? '1 saved draft' : 'No planned posts yet'
-        }}</span></a
+        <p>Not connected: drafts require the backend.</p>
+        <span class="badge">Not connected: drafts require the backend.</span></a
       >
     </div>
     <p style="margin-top: 24px">
@@ -108,12 +99,7 @@
         <option>Last 30 days</option>
         <option>Last 7 days</option>
         <option>Last 90 days</option></select
-      ><button
-        (click)="
-          store.notice.set('Comparison unavailable: neither period has verified observations.')
-        "
-      >
-        Compare periods</button
+      ><button disabled title="Not connected">Compare periods</button
       ><button (click)="coverage = !coverage">Coverage info</button>
     </div>
     @if (coverage) {

@@ -1,6 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DemoStore } from '../demo-store';
 @Component({
   selector: 'app-states',
   imports: [RouterLink],
@@ -27,19 +26,11 @@ import { DemoStore } from '../demo-store';
     <section class="panel" style="margin-top:24px">
       <h2>In-app reminder</h2>
       <p>A reminder can be dismissed without removing the planned task.</p>
-      <button
-        (click)="
-          store.notice.set(
-            'Reminder preview: review your planned draft. Dismissing this reminder keeps the draft in your planner.'
-          )
-        "
-      >
-        Show reminder
-      </button>
+      <button disabled>Show reminder</button>
+      <p>Not connected: reminders require the backend.</p>
     </section>`,
 })
 export class States {
-  store = inject(DemoStore);
   states = [
     {
       title: 'No Instagram account',
@@ -72,9 +63,8 @@ export class States {
     },
     {
       title: 'Draft save & recovery',
-      status: 'Session-only saving',
-      description:
-        'Saved and unsaved states are explicit. Reloading this demo clears its state. Conflict recovery will require backend versioning.',
+      status: 'Not connected',
+      description: 'Draft saving and recovery require the backend.',
       link: '/dashboard/planner/draft',
       action: 'Open editor',
     },

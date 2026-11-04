@@ -1,16 +1,8 @@
 <p class="eyebrow">Account / Settings</p>
 <div class="page-title">
   <div>
-    <h1>
-      {{
-        view === 'content'
-          ? 'Content & AI preferences'
-          : view === 'privacy'
-            ? 'Privacy & account'
-            : 'Settings'
-      }}
-    </h1>
-    <p>Your workspace, on your terms.</p>
+    <h1>Settings</h1>
+    <p>Not connected: account data and preferences require the backend.</p>
   </div>
 </div>
 <nav class="tabs" aria-label="Settings sections">
@@ -21,40 +13,24 @@
 </nav>
 @switch (view) {
   @case ('general') {
-    <section class="panel" style="max-width: 720px">
+    <section class="panel">
       <h2>General preferences</h2>
-      <p>The basics for your Trellis workspace.</p>
       <label for="display-name">Display name</label
       ><input id="display-name" [(ngModel)]="name" placeholder="Your name" /><label for="theme"
         >Appearance</label
       ><select id="theme">
-        <option>Light · wireframe theme</option></select
-      ><button class="primary" (click)="save()">Save preferences</button>
+        <option>Light ? wireframe theme</option></select
+      ><button class="primary" disabled>Save preferences</button>
     </section>
   }
   @case ('instagram') {
     <section class="panel">
       <h2>Connected Instagram</h2>
-      <div class="row">
-        <span>Connection health</span
-        ><span class="badge">{{
-          store.connected() ? 'Demo connection only' : 'Not connected'
-        }}</span>
-      </div>
-      <div class="row">
-        <span>Authorized identity</span><small>Not available from a live provider</small>
-      </div>
-      <div class="row"><span>Refresh preference</span><small>Manual refresh</small></div>
-      <p style="margin-top: 24px">
-        One linked Creator account per Trellis user. Disconnecting stops data retrieval and keeps
-        this demo workspace.
-      </p>
+      <div class="row"><span>Connection health</span><span class="badge">Not connected</span></div>
+      <p>No authorized identity or account data available.</p>
       <div class="actions">
-        @if (store.connected()) {
-          <button class="danger" (click)="confirm = 'disconnect'">Disconnect account</button>
-        } @else {
-          <a class="button primary" routerLink="/step1">Connect Instagram</a>
-        }
+        <a class="button" routerLink="/step1">Preview connection screens</a
+        ><button class="danger" disabled>Disconnect account</button>
       </div>
     </section>
   }
@@ -62,125 +38,48 @@
     <div class="grid equal">
       <section class="panel">
         <h2>Writing style and voice</h2>
-        <p>Add examples from your own captions and describe the tone that feels like you.</p>
         <label for="voice">Voice examples & preferred style</label
         ><textarea
           id="voice"
           [(ngModel)]="voice"
-          placeholder="Clear, conversational, grounded in my own experience..."
+          placeholder="Describe your preferred tone..."
         ></textarea
-        ><button class="primary" (click)="save()">Save voice preferences</button>
+        ><button class="primary" disabled>Save voice preferences</button>
       </section>
       <section class="panel" style="margin: 0">
         <h2>Prohibited expressions</h2>
-        <p>
-          Expressions on this list are checked in the draft editor. You control every addition and
-          removal.
-        </p>
-        <form (ngSubmit)="addPhrase()">
-          <label for="phrase">Add an expression</label>
-          <div class="chat-compose">
-            <input
-              id="phrase"
-              name="phrase"
-              [(ngModel)]="phrase"
-              placeholder="Expression to exclude"
-            /><button type="submit" [disabled]="!phrase.trim()">Add</button>
-          </div>
-        </form>
-        @for (item of store.bannedPhrases(); track item) {
-          <div class="row">
-            <span>{{ item }}</span
-            ><button [attr.aria-label]="'Remove ' + item" (click)="removePhrase(item)">
-              Remove
-            </button>
-          </div>
-        } @empty {
-          <p style="margin-top: 18px">No prohibited expressions added.</p>
-        }
+        <label for="phrase">Expression</label
+        ><input id="phrase" [(ngModel)]="phrase" placeholder="Expression to exclude" /><button
+          disabled
+        >
+          Add expression
+        </button>
+        <p>Not connected: no expression list loaded.</p>
       </section>
     </div>
     <section class="panel" style="margin-top: 24px">
       <h2>Conversation memory and personalization</h2>
-      <p>
-        Ordinary chat context stays in its conversation. Cross-chat memories require explicit
-        approval.
-      </p>
-      <button (click)="memories = !memories">Manage memories</button>
-      @if (memories) {
-        <div class="empty" style="margin-top: 20px">
-          <h3>No approved memories</h3>
-          <p>Cross-chat memory is not connected in this preview.</p>
-        </div>
-      }
+      <p>Not connected: approved memories are unavailable.</p>
+      <button disabled>Manage memories</button>
     </section>
   }
   @case ('privacy') {
     <section class="panel">
       <h2>Stored data and retention</h2>
       <p>
-        This frontend demo holds drafts, saved ideas, chat messages and preferences in browser
-        memory. Reloading clears them. No data is sent to a backend.
+        No backend is connected. Inputs on these screens are local to the component and are not
+        saved.
       </p>
-      <div class="row">
-        <span>Account observations, posts & insights</span><small>Not collected</small>
-      </div>
-      <div class="row">
-        <span>Chats, drafts & preferences</span><small>Current session only</small>
-      </div>
-      <div class="row">
-        <span>Uploaded media & provider consent</span><small>Not collected</small>
-      </div>
     </section>
     <section class="panel">
       <h2>Instagram disconnect</h2>
-      <p>Remove the demo connection independently of your Trellis workspace.</p>
+      <p>Not connected: account management requires the backend.</p>
       <a class="button" routerLink="/settings/instagram">Manage connection</a>
     </section>
     <section class="panel">
       <h2>Delete Trellis account</h2>
-      <p>
-        In this preview, deletion clears demo state. No real Trellis or Instagram account is
-        deleted.
-      </p>
-      <button class="danger" (click)="confirm = 'delete'; deleteText = ''">
-        Delete demo workspace
-      </button>
+      <p>Not connected: account deletion is unavailable.</p>
+      <button class="danger" disabled>Delete account</button>
     </section>
   }
-}
-@if (confirm) {
-  <div class="modal-backdrop">
-    <section
-      class="panel modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirmation-title"
-    >
-      <h2 id="confirmation-title">
-        {{ confirm === 'delete' ? 'Clear this demo workspace?' : 'Disconnect Instagram?' }}
-      </h2>
-      <p>
-        {{
-          confirm === 'delete'
-            ? 'All demo drafts, saved ideas, chats and preferences will be cleared. This cannot be undone.'
-            : 'The simulated connection will be removed. Saved content and preferences are retained.'
-        }}
-      </p>
-      @if (confirm === 'delete') {
-        <label for="delete-confirmation">Type DELETE to confirm</label
-        ><input id="delete-confirmation" [(ngModel)]="deleteText" autocomplete="off" />
-      }
-      <div class="actions">
-        <button (click)="confirm = null">Cancel</button
-        ><button
-          class="danger"
-          [disabled]="confirm === 'delete' && deleteText !== 'DELETE'"
-          (click)="accept()"
-        >
-          {{ confirm === 'delete' ? 'Clear demo workspace' : 'Disconnect' }}
-        </button>
-      </div>
-    </section>
-  </div>
 }

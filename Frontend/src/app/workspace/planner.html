@@ -1,29 +1,27 @@
-<p class="eyebrow">
-  Dashboard / Planner
-  @if (view !== 'calendar') {
-    / {{ view }}
-  }
-</p>
+<p class="eyebrow">Dashboard / Planner / {{ view }}</p>
+<div class="page-title">
+  <div>
+    <h1>
+      {{
+        view === 'calendar'
+          ? 'Content Planner'
+          : view === 'draft'
+            ? 'Draft editor'
+            : 'Review before publishing'
+      }}
+    </h1>
+    <p>Not connected: drafts, scheduling and publishing require the backend.</p>
+  </div>
+  <a class="button" routerLink="/dashboard/planner">Planner</a>
+</div>
 @switch (view) {
   @case ('calendar') {
-    <div class="page-title">
-      <div>
-        <h1>Content Planner</h1>
-        <p>A place for your ideas to become a plan.</p>
-      </div>
-      <a class="button primary" routerLink="/dashboard/planner/draft"
-        >+ {{ store.hasDraft() ? 'Continue draft' : 'New draft' }}</a
-      >
-    </div>
-    <a class="text-link" routerLink="/dashboard">← Dashboard</a>
-    <div class="grid two" style="margin-top: 24px">
+    <div class="grid two">
       <section class="panel">
-        <div class="row" style="padding-top: 0">
-          <div class="actions">
-            <button aria-label="Previous month" (click)="shift(-1)">←</button>
-            <h2 style="margin: 0">{{ monthLabel }}</h2>
-            <button aria-label="Next month" (click)="shift(1)">→</button>
-          </div>
+        <div class="actions">
+          <button aria-label="Previous month" (click)="shift(-1)">?</button>
+          <h2>{{ monthLabel }}</h2>
+          <button aria-label="Next month" (click)="shift(1)">?</button>
         </div>
         <div class="tabs">
           <button [class.active]="!week" (click)="week = false">Month view</button
@@ -35,7 +33,7 @@
           }
           @if (!week) {
             @for (blank of blanks; track blank) {
-              <div style="background: #fafbf8"></div>
+              <div></div>
             }
           }
           @for (day of visibleDays; track day) {
@@ -45,154 +43,76 @@
               (click)="selected = day"
             >
               {{ day }}
-              @if (store.hasDraft() && isScheduled(day)) {
-                <small>● Draft</small>
-              }
             </button>
           }
         </div>
       </section>
-      <div class="stack">
+      <aside class="stack">
         <section class="panel">
-          <p class="eyebrow">Selected day / {{ selected }}</p>
-          <h2>Make a little space.</h2>
-          <p>Choose this day for your draft. Dates are reminders; they do not publish content.</p>
-          <a class="button" routerLink="/dashboard/planner/draft" (click)="selectDate()"
-            >Plan content for this day</a
-          >
+          <h2>Selected day: {{ selected }}</h2>
+          <p>Scheduling is not connected.</p>
+          <a class="button" routerLink="/dashboard/planner/draft">Preview draft editor</a>
         </section>
         <section class="panel">
           <h2>Saved drafts</h2>
-          @if (store.hasDraft()) {
-            <p>{{ store.draft().hook || 'Untitled draft' }}</p>
-            <small
-              >{{ store.draft().format }} · {{ store.draft().date || 'No date assigned' }}</small
-            >
-            <div class="actions" style="margin-top: 18px">
-              <a class="button" routerLink="/dashboard/planner/draft">Edit draft</a
-              ><a class="text-link" routerLink="/dashboard/planner/review">Review</a>
-            </div>
-          } @else {
-            <p>No saved drafts yet. Start with an idea, or write something new.</p>
-          }
+          <p>Not connected: no drafts loaded.</p>
+          <a class="text-link" routerLink="/dashboard/planner/review">Preview review screen</a>
         </section>
-      </div>
+      </aside>
     </div>
   }
   @case ('draft') {
-    <div class="page-title">
-      <div>
-        <h1>Draft editor</h1>
-        <p>Your content. Your voice. Ready when you are.</p>
-      </div>
-      <div class="actions">
-        <a class="button" routerLink="/dashboard/planner">Back to planner</a
-        ><button class="primary" (click)="save()" [disabled]="blocked.length > 0">
-          Save draft
-        </button>
-      </div>
-    </div>
     <div class="grid equal">
       <section class="panel">
-        <p class="eyebrow">Source media</p>
-        <div class="placeholder">
-          Media preview placeholder<br />Upload and media storage will be connected with the
-          backend.
-        </div>
-        <label for="format" style="margin-top: 24px">Format</label
-        ><select id="format" [(ngModel)]="draft.format" (ngModelChange)="changed()">
+        <h2>Source media</h2>
+        <div class="placeholder">Media preview placeholder</div>
+        <label for="format">Format</label
+        ><select id="format" [(ngModel)]="draft.format">
           <option>Carousel</option>
           <option>Reel</option>
           <option>Image</option></select
         ><label for="date">Planned date</label
-        ><input id="date" type="date" [(ngModel)]="draft.date" (ngModelChange)="changed()" /><small
-          >Creates a planned date, never automatic publication.</small
-        >
+        ><input id="date" type="date" [(ngModel)]="draft.date" />
       </section>
       <section class="panel" style="margin: 0">
-        <p class="eyebrow">Caption package / Editable</p>
-        <label for="hook">Hook</label
-        ><input
-          id="hook"
-          [(ngModel)]="draft.hook"
-          (ngModelChange)="changed()"
-          placeholder="Your opening line"
-        /><label for="caption">Caption</label
+        <h2>Caption package / Editable</h2>
+        <label for="hook">Hook</label><input id="hook" [(ngModel)]="draft.hook" /><label
+          for="caption"
+          >Caption</label
         ><textarea
           id="caption"
           [(ngModel)]="draft.caption"
-          (ngModelChange)="changed()"
           placeholder="Fill in your real experience..."
         ></textarea
-        ><label for="cta">Call to action</label
-        ><input
-          id="cta"
-          [(ngModel)]="draft.cta"
-          (ngModelChange)="changed()"
-          placeholder="What would you like your audience to do?"
-        /><label for="hashtags">Hashtags</label
-        ><input
-          id="hashtags"
-          [(ngModel)]="draft.hashtags"
-          (ngModelChange)="changed()"
-          placeholder="#yourtopic"
-        />
-        <p role="status">{{ saved ? 'Saved for this session' : 'Unsaved changes' }}</p>
-        @if (blocked.length) {
-          <p class="error" role="alert">Remove prohibited expressions: {{ blocked.join(', ') }}</p>
-        } @else {
-          <small
-            >Prohibited-expression check passed. Manage your list in Content & AI settings.</small
-          >
-        }
-        <div class="actions" style="margin-top: 20px">
-          @if (saved) {
-            <a class="button primary" routerLink="/dashboard/planner/review">Review draft →</a>
-          }
+        ><label for="cta">Call to action</label><input id="cta" [(ngModel)]="draft.cta" /><label
+          for="hashtags"
+          >Hashtags</label
+        ><input id="hashtags" [(ngModel)]="draft.hashtags" />
+        <p>
+          Not connected: changes are not saved. Prohibited-expression validation is unavailable.
+        </p>
+        <div class="actions">
+          <button class="primary" disabled>Save draft</button
+          ><a class="button" routerLink="/dashboard/planner/review">Preview review screen</a>
         </div>
       </section>
     </div>
   }
   @case ('review') {
-    <div class="page-title">
-      <div>
-        <h1>Review before publishing</h1>
-        <p>Take one last look at the exact content and destination.</p>
-      </div>
+    <div class="grid equal">
+      <div class="placeholder">Media preview ? Not connected</div>
+      <section class="panel">
+        <h2>Current draft</h2>
+        <p>No saved content or destination account loaded.</p>
+        <label class="check"
+          ><input type="checkbox" [(ngModel)]="confirmed" />I confirm I reviewed this exact
+          content.</label
+        >
+        <div class="actions">
+          <a class="button" routerLink="/dashboard/planner/draft">Back to editor</a
+          ><button class="primary" disabled>Publish now</button>
+        </div>
+      </section>
     </div>
-    @if (!store.hasDraft()) {
-      <div class="empty">
-        <h2>No saved draft to review</h2>
-        <a class="button primary" routerLink="/dashboard/planner/draft">Create a draft</a>
-      </div>
-    } @else {
-      <div class="grid equal">
-        <div class="placeholder">Media preview · no uploaded media</div>
-        <section class="panel">
-          <p class="eyebrow">Current saved draft</p>
-          <h2>{{ store.draft().hook || 'No hook added' }}</h2>
-          <p style="white-space: pre-wrap">{{ store.draft().caption || 'No caption added' }}</p>
-          <p>{{ store.draft().cta }}</p>
-          <p>{{ store.draft().hashtags }}</p>
-          <div class="row"><span>Destination</span><small>No live account authorized</small></div>
-          <div class="row"><span>Draft version</span><small>Current session save</small></div>
-          <p class="error">Media and an authorized destination are required for real publishing.</p>
-          <label class="check"
-            ><input type="checkbox" [(ngModel)]="confirmed" />I confirm I reviewed this exact
-            content.</label
-          >
-          <div class="actions" style="margin-top: 24px">
-            <a class="button" routerLink="/dashboard/planner/draft">Back to editor</a
-            ><button
-              class="primary"
-              [disabled]="!confirmed || blocked.length > 0"
-              (click)="publish()"
-            >
-              Publish now (demo)
-            </button>
-          </div>
-        </section>
-      </div>
-    }
   }
 }

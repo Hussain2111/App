@@ -23,8 +23,7 @@
 </div>
 <nav class="tabs" aria-label="Hot Topics sections">
   <a routerLink="/hot-topics" [class.active]="view === 'discover'">Discover</a
-  ><a routerLink="/hot-topics/saved" [class.active]="view === 'saved'"
-    >Saved ideas ({{ store.savedIdeas().length }})</a
+  ><a routerLink="/hot-topics/saved" [class.active]="view === 'saved'">Saved ideas</a
   ><a routerLink="/hot-topics/updates" [class.active]="view === 'updates'">Official updates</a>
 </nav>
 @switch (view) {
@@ -51,9 +50,9 @@
           </div>
           <div class="actions" style="margin-top: 24px">
             <button (click)="next()">Pass</button
-            ><button class="primary" (click)="save()">♡ Save</button
+            ><button class="primary" disabled title="Not connected">♡ Save</button
             ><button (click)="discuss(idea.title)">Discuss AI</button
-            ><button (click)="plan(idea.title)">Plan ↗</button>
+            ><button disabled title="Not connected">Plan ↗</button>
           </div>
         } @else {
           <div class="empty">
@@ -89,36 +88,18 @@
         </section>
         <section class="panel">
           <h2>Worth coming back to.</h2>
-          <p>Keep the ideas that feel like you, then discuss them or start a draft.</p>
+          <p>Saving and planning ideas require the backend.</p>
           <a class="text-link" routerLink="/hot-topics/saved">Open saved ideas →</a>
         </section>
       </aside>
     </div>
   }
   @case ('saved') {
-    @if (!store.savedIdeas().length) {
-      <div class="panel empty">
-        <h2>Your next idea is out there.</h2>
-        <p>Save an idea from Discover and it will appear here.</p>
-        <a class="button primary" routerLink="/hot-topics">Discover ideas</a>
-      </div>
-    }
-    @for (idea of store.savedIdeas(); track idea) {
-      <article class="panel">
-        <div class="page-title" style="margin: 0">
-          <div>
-            <span class="badge">Saved this session · Sample idea</span>
-            <h2 style="margin-top: 16px">{{ idea }}</h2>
-            <p>No verified evidence or observed date attached.</p>
-          </div>
-          <div class="actions">
-            <button (click)="discuss(idea)">Discuss</button
-            ><button class="primary" (click)="plan(idea)">Add to planner</button
-            ><button aria-label="Remove saved idea" (click)="remove(idea)">Remove</button>
-          </div>
-        </div>
-      </article>
-    }
+    <section class="panel empty">
+      <h2>Saved ideas</h2>
+      <p>Not connected: saved ideas will be loaded from the backend.</p>
+      <a class="button" routerLink="/hot-topics">Discover ideas</a>
+    </section>
   }
   @case ('updates') {
     <div class="tabs" aria-label="Update filters">
