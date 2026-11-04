@@ -57,16 +57,3 @@ export class Authentication {
     }
 }
 
-export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn) => {
-    const authService = inject(Authentication);
-    
-    return next(req).pipe(
-        tap({ 
-            error: error => {
-                if (error instanceof HttpErrorResponse  && error.status === 401) {
-                    authService.logout();                
-                }
-            }
-        })
-    );
-}
