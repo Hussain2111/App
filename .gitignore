@@ -1,0 +1,17 @@
+# Local credentials and SQLite data
+.env
+.env.*
+!.env.example
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+
+# Generated artifacts
+node_modules/
+dist/
+.angular/
+coverage/
+*.exe
