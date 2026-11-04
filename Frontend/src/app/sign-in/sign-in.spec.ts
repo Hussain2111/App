@@ -1,23 +1,50 @@
-import { provideRouter } from '@angular/router';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter, Router } from '@angular/router';
+import { vi } from 'vitest';
 import { SignIn } from './sign-in';
 
-describe('SignIn', () => {
-  let component: SignIn;
-  let fixture: ComponentFixture<SignIn>;
-
+describe('SignIn form', () => {
+  let http: HttpTestingController;
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [SignIn],
-      providers: [provideRouter([])],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(SignIn);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+    await TestBed.configureTestingModule({ imports: [SignIn], providers: [
+      provideHttpClient(), provideHttpClientTesting(), provideRouter([]),
+    ] }).compileComponents();
+    http = TestBed.inject(HttpTestingController);
   });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  afterEach(() => { http.verify(); vi.restoreAllMocks(); });
+  it('does not send an invalid form', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fixture = TestBed.createComponent(SignIn);
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    http.expectNone('/signin');
+  });
+  it('submits input values and navigates only after success', () => {
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    const fixture = TestBed.createComponent(SignIn);
+    fixture.detectChanges();
+    for (const [name, value] of [['email', 'user@example.test'], ['password', 'test-password']]) {
+      const input = fixture.nativeElement.querySelector(`[formControlName="${name}"]`);
+      input.value = value;
+      input.dispatchEvent(new Event('input'));
+    }
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    const request = http.expectOne('/signin');
+    expect(request.request.body).toEqual({ email: 'user@example.test', password: 'test-password' });
+    expect(navigate).not.toHaveBeenCalled();
+    request.flush({ id: 7, name: 'Test User', email: 'user@example.test' });
+    expect(navigate).toHaveBeenCalledWith(['/step1']);
+  });
+  it('does not navigate after rejected credentials', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    const fixture = TestBed.createComponent(SignIn);
+    fixture.detectChanges();
+    fixture.componentInstance.signInForm.setValue({ email: 'user@example.test', password: 'wrong-password' });
+    fixture.componentInstance.onSubmit();
+    http.expectOne('/signin').flush('Invalid credentials', { status: 401, statusText: 'Unauthorized' });
+    expect(navigate).not.toHaveBeenCalled();
   });
 });
