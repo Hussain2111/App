@@ -10,8 +10,8 @@
   </section>
   <section class="panel form-card">
     <h2>Sign in</h2>
-    <p>Frontend preview ? use any valid email and password. No account is created.</p>
-    <form (submit)="submit($event)">
+    <p>Not connected: authentication is not available yet.</p>
+    <form [formGroup]="signInForm" (ngSubmit)="onSubmit()">
       <label for="email">Email address</label
       ><input
         id="email"
@@ -19,6 +19,7 @@
         type="email"
         autocomplete="email"
         placeholder="name@example.com"
+        formControlName="email"        
         required
       /><label for="password">Password</label
       ><input
@@ -27,11 +28,13 @@
         type="password"
         autocomplete="current-password"
         placeholder="Enter your password"
+        formControlName="password"
         required
         minlength="8"
       />
       <p><a class="text-link" routerLink="/recover">Forgot password?</a></p>
       <button class="primary" type="submit">Sign in</button>
+      <p role="status"></p>
     </form>
     <p style="margin-top: 24px">
       New to Trellis? <a class="text-link" routerLink="/sign-up">Create account</a>

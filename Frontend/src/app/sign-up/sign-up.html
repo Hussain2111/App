@@ -10,23 +10,18 @@
   </section>
   <section class="panel form-card">
     <h2>Get started</h2>
-    <p>Frontend preview ? use any valid email and password. No account is created.</p>
-    <form (submit)="submit($event)">
+    <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
       <label for="name">Display name</label
-      ><input
-        id="name"
-        name="name"
-        autocomplete="name"
-        placeholder="Your name"
-        required
-        (input)="store.displayName.set($any($event.target).value)"
-      /><label for="email">Email address</label
+      ><input id="name" name="name" autocomplete="name" formControlName="name" placeholder="Your name" required /><label
+        for="email"
+        >Email address</label
       ><input
         id="email"
         name="email"
         type="email"
         autocomplete="email"
         placeholder="name@example.com"
+        formControlName="email"
         required
       /><label for="password">Password</label
       ><input
@@ -34,10 +29,12 @@
         name="password"
         type="password"
         autocomplete="new-password"
+        formControlName="password"
         placeholder="Create a password"
         required
         minlength="8"
       /><button class="primary" type="submit">Create Trellis account</button>
+      <p role="status" aria-live="polite">{{ message() }}</p>
     </form>
     <p style="margin-top: 24px">
       Already have an account? <a class="text-link" routerLink="/sign-in">Sign in</a>
