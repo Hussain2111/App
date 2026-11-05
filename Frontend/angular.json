@@ -30,7 +30,9 @@
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
-              "allowedHosts": []
+              "allowedHosts": [
+                "lunar-disown-heaving.ngrok-free.dev"
+              ]
             },
             "ssr": {
               "entry": "src/server.ts"
@@ -71,7 +73,8 @@
             }
           },
           "options": {
-            "proxyConfig": "src/proxy.conf.json"
+            "proxyConfig": "src/proxy.conf.json",
+            "allowedHosts": ["lunar-disown-heaving.ngrok-free.dev"]
           },
           "defaultConfiguration": "development"
         },
