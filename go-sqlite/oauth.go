@@ -2,10 +2,15 @@ package main
 
 import (
 	"context"
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/json"
+	"errors"
+	"database/sql"
 	"golang.org/x/oauth2"
+
 	"io"
 	"net/http"
 	"net/url"
@@ -14,6 +19,8 @@ import (
 )
 
 var conf *oauth2.Config
+
+const tokenEncryptionKey = "32-byte-key-for-AES-256-!!!!!!!!"
 
 func OAuth() {
 	conf = &oauth2.Config{
@@ -27,11 +34,12 @@ func OAuth() {
 	}
 }
 
+
 func (s *Server) Callback(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	w.Header().Set("Cache-Control", "no-store")
-
-	if sessionManager.GetInt64(ctx, "userID") == 0 {
+	user := sessionManager.GetInt64(ctx, "userID")
+	if user == 0 {
 		http.Error(w, "Not signed in", http.StatusUnauthorized)
 		return
 	}
@@ -249,15 +257,71 @@ func (s *Server) Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Temporary diagnostic output: no token or app secret.
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"client_business_id": business.ClientBusinessID,
-		"account_count":      len(accounts.Data),
-		"accounts":           accounts.Data,
-	})
-	return
+	cyphertext, err := cypher(token.AccessToken)
+	if err != nil {
+		http.Error(w, "Token encryption failed", http.StatusInternalServerError)
+		return
+	}
 
+	DBquery := `
+    INSERT INTO instagram_connections
+        (user_id, instagram_id, username, business_id, encrypted_token)
+    VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(instagram_id) DO UPDATE SET
+        username = excluded.username,
+        business_id = excluded.business_id,
+        encrypted_token = excluded.encrypted_token
+    WHERE instagram_connections.user_id = excluded.user_id;`
+	if len(accounts.Data) == 0 {
+		http.Error(w, "No Instagram account returned", http.StatusBadGateway)
+		return
+	}
+
+	instagramID := accounts.Data[0].ID
+	accountUsername := accounts.Data[0].Username
+	result, err := s.db.Exec(
+		DBquery, user, instagramID, accountUsername,
+		business.ClientBusinessID, cyphertext,
+	)
+	if err != nil {
+		http.Error(w, "Failed to save Instagram connection", http.StatusInternalServerError)
+		return
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, "Failed to confirm saved connection", http.StatusInternalServerError)
+		return
+	}
+	if rows == 0 {
+		http.Error(w, "Instagram account is connected to another user", http.StatusConflict)
+		return
+	}
+
+	http.Redirect(w, r, "/step2", http.StatusSeeOther)
+
+}
+
+func cypher(token string) ([]byte, error) {
+	key := []byte(tokenEncryptionKey)
+	plaintext := []byte(token)
+
+	block, err := aes.NewCipher(key)
+    if err != nil {
+        return nil, err
+    }
+
+    gcm, err := cipher.NewGCM(block)
+    if err != nil {
+        return nil, err
+    }
+
+    nonce := make([]byte, gcm.NonceSize())
+    if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+        return nil, err
+    }
+
+    return gcm.Seal(nonce, nonce, plaintext, nil), nil
 }
 
 func (s *Server) Handlestart(w http.ResponseWriter, r *http.Request) {
@@ -286,4 +350,106 @@ func (s *Server) Handlestart(w http.ResponseWriter, r *http.Request) {
 	)
 
 	http.Redirect(w, r, url, http.StatusSeeOther)
+}
+
+func (s *Server) HandleConnect(w http.ResponseWriter, r *http.Request) {
+	
+	ctx := r.Context()
+	user := sessionManager.GetInt64(ctx, "userID")
+	if user == 0 {
+		http.Error(w, "Not signed in", http.StatusUnauthorized)
+		return 
+	}
+	var instaID string
+	var username string
+	query := `SELECT instagram_id, username 
+	FROM instagram_connections WHERE user_id = ?;`
+	
+	if err := s.db.QueryRowContext(ctx, query, user).Scan(&instaID, &username); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "No Instagram connection found", http.StatusNotFound)
+			return
+		}
+
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return 
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(map[string]interface{}{
+		"insta_ID":    instaID,
+		"username":  username,
+	}); err != nil {
+		http.Error(w, "Error encoding response", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s *Server) HandleInstagramProfile(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
+	userID := sessionManager.GetInt64(r.Context(), "userID")
+	if userID == 0 {
+		http.Error(w, "Not signed in", http.StatusUnauthorized)
+		return
+	}
+	var instagramID string
+	var encryptedToken []byte
+	err := s.db.QueryRowContext(r.Context(),
+		"SELECT instagram_id, encrypted_token FROM instagram_connections WHERE user_id = ?", userID,
+	).Scan(&instagramID, &encryptedToken)
+	if errors.Is(err, sql.ErrNoRows) {
+		http.Error(w, "No Instagram connection found", http.StatusNotFound)
+		return
+	}
+	if err != nil {
+		http.Error(w, "Unable to load Instagram connection", http.StatusInternalServerError)
+		return
+	}
+	block, err := aes.NewCipher([]byte(tokenEncryptionKey))
+	if err != nil {
+		http.Error(w, "Unable to initialize token decryption", http.StatusInternalServerError)
+		return
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil || len(encryptedToken) < gcm.NonceSize()+gcm.Overhead() {
+		http.Error(w, "Invalid stored token", http.StatusInternalServerError)
+		return
+	}
+	nonce := encryptedToken[:gcm.NonceSize()]
+	token, err := gcm.Open(nil, nonce, encryptedToken[gcm.NonceSize():], nil)
+	if err != nil {
+		http.Error(w, "Unable to decrypt Instagram token", http.StatusInternalServerError)
+		return
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), 15*time.Second)
+	defer cancel()
+	endpoint := "https://graph.facebook.com/v27.0/" + url.PathEscape(instagramID) + "?fields=id,username,followers_count"
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		http.Error(w, "Unable to create Instagram request", http.StatusInternalServerError)
+		return
+	}
+	req.Header.Set("Authorization", "Bearer "+string(token))
+	client := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+	resp, err := client.Do(req)
+	if err != nil {
+		http.Error(w, "Unable to reach Instagram", http.StatusBadGateway)
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		http.Error(w, "Instagram could not return the follower count. Try reconnecting your account.", http.StatusBadGateway)
+		return
+	}
+	var profile struct {
+		ID string `json:"id"`
+		Username string `json:"username"`
+		FollowersCount *int64 `json:"followers_count"`
+	}
+	if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&profile); err != nil || profile.ID != instagramID || profile.FollowersCount == nil {
+		http.Error(w, "Instagram returned an incomplete profile", http.StatusBadGateway)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(profile)
 }

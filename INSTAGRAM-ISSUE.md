@@ -121,6 +121,21 @@ If the failure recurs, capture the exact endpoint/version/fields, sanitized stat
 
 Completion requires evidence connecting a specific condition to failure and its correction to success. A plausible explanation alone is insufficient. Restored oauth.go succeeding today establishes that the later OAuth rewrites are unnecessary under current conditions, while the historical cause remains open.
 
+## Backlog item IG-002
+
+Title: Finish the setup pages' placeholders and previews.
+
+Status: Deferred at the user's request on November 7, 2026. Prioritize working Instagram data on the dashboard.
+
+Scope:
+
+- Replace the step 1 authorization preview placeholder with a finished visual or useful account-connection guidance.
+- Review steps 1, 2, and 3 for remaining demo text, preview labels, and placeholder content.
+- Make copy reflect the actual connection and data-loading state.
+- Check button spacing and responsive layouts across the setup pages.
+
+Completion requires all three setup pages to use accurate content and finished previews, with loading and error states checked. The connected username, Instagram ID, and dashboard follower count must continue to use real data.
+
 ## Documentation consulted during the investigation
 
 - https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-unified-login/get-started

@@ -42,6 +42,11 @@ func main() {
 		return
 	}
 
+	if _, err := CreateInstaTable(db); err != nil {
+		log.Println("Error creating users table:", err)
+		return
+	}
+
 	fmt.Println("Users table created successfully")
 	if err := CreateSessionsTable(db); err != nil {
 		log.Println("Error creating sessions table:", err)
@@ -76,6 +81,8 @@ func main() {
 	mux.HandleFunc("POST /webhooks/instagram", webhooks.Receive)
 	mux.HandleFunc("GET /auth/instagram/callback", server.Callback)
 	mux.HandleFunc("GET /auth/instagram/start", server.Handlestart)
+	mux.HandleFunc("GET /auth/instagram/connection", server.HandleConnect)
+	mux.HandleFunc("GET /auth/instagram/profile", server.HandleInstagramProfile)
 
 	fmt.Println("Server is running on http://localhost:8080")
 
@@ -84,6 +91,8 @@ func main() {
 	}
 
 }
+
+
 
 func (s *Server) getHandler(w http.ResponseWriter, r *http.Request) {
 	userID := sessionManager.GetInt64(r.Context(), "userID")

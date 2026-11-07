@@ -23,7 +23,7 @@
       }}
     </p>
   </div>
-  <button disabled title="Not connected">↻ Refresh now</button>
+  <button (click)="refresh()" [disabled]="loading()">{{ loading() ? 'Loading…' : '↻ Refresh now' }}</button>
 </div>
 <nav class="tabs" aria-label="Dashboard sections">
   <a routerLink="/dashboard" [class.active]="view === 'overview'">Overview</a
@@ -32,10 +32,17 @@
   ><a routerLink="/dashboard/planner">Content Planner</a>
 </nav>
 
-<div class="notice">
-  <span>Connect your Creator account to see insights grounded in your data.</span
-  ><a class="button primary" routerLink="/step1">Connect Instagram</a>
-</div>
+@if (error()) {
+  <div class="notice" role="alert">
+    <span>{{ error() }}</span>
+    @if (needsConnection()) {
+      <a class="button primary" routerLink="/step1">Connect Instagram</a>
+    }
+  </div>
+}
+@if (profile(); as account) {
+  <p>Connected to &#64;{{ account.username }}</p>
+}
 @switch (view) {
   @case ('overview') {
     <section class="panel" style="margin-bottom: 24px; background: #edf2e6">
@@ -65,7 +72,12 @@
       @for (metric of ['Followers', 'Reach', 'Views', 'Engagement']; track metric) {
         <article class="panel metric">
           <h3>{{ metric }}</h3>
-          <strong>—</strong><small>No observations available</small>
+          @if (metric === 'Followers') {
+            <strong>{{ loading() ? '…' : (profile()?.followers_count ?? '—') }}</strong>
+            <small>{{ profile() ? 'Current total · Instagram' : 'Follower count unavailable' }}</small>
+          } @else {
+            <strong>—</strong><small>No observations available</small>
+          }
         </article>
       }
     </div>
@@ -84,7 +96,7 @@
     </div>
     <p style="margin-top: 24px">
       <small
-        >Last observed: unavailable · Last checked: never · Source: no connected provider</small
+        >Historical metrics have not been imported.</small
       >
     </p>
   }

@@ -10,12 +10,21 @@
   </div>
   <h1>Is this the correct account?</h1>
   <p>In the connected app, this identity will be returned by Meta.</p>
-  <section class="panel">
-    <p class="eyebrow">Authorized Instagram account ? demo placeholder</p>
-    <h2>&#64;account_from_meta</h2>
-    <p>Creator account / permissions summary</p>
-    <a class="button primary" routerLink="/step3">Preview sync screen</a>
-  </section>
-  <p>No connection is saved when you choose another account.</p>
-  <a class="button" routerLink="/step1">Choose another</a>
+  @if (loading()) {
+    <p>Loading your Instagram account…</p>
+  } @else if (error()) {
+    <p role="alert">{{ error() }}</p>
+  } @else if (connection(); as account) {
+    <section class="panel">
+      <p class="eyebrow">Connected Instagram account</p>
+      <h2>&#64;{{ account.username }}</h2>
+      <p>Instagram ID: {{ account.insta_ID }}</p>
+    </section>
+  }
+  <div class="connection-actions">
+    @if (connection()) {
+      <a class="button primary" routerLink="/step3">Continue</a>
+    }
+    <a class="button" routerLink="/step1">Choose another</a>
+  </div>
 </main>

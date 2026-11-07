@@ -1,29 +1,23 @@
 <header class="public-header">
-  <a class="brand" routerLink="/"><span class="brand-mark">t</span>trellis</a
-  ><small>Account setup in progress</small
-  ><a class="button" routerLink="/sign-in">Sign-in screen</a>
+  <a class="brand" routerLink="/"><span class="brand-mark">t</span>trellis</a>
+  <small>Account setup</small>
 </header>
 <main class="step-page">
-  <p class="eyebrow">Step 3 of 3 ? Sync</p>
+  <p class="eyebrow">Step 3 of 3 · Ready</p>
   <div class="progress" aria-hidden="true">
     <span class="done"></span><span class="done"></span><span class="done"></span>
   </div>
-  <h1>Preparing your workspace</h1>
-  <p>We will import the data available under your authorized permissions.</p>
-  <section class="panel">
-    <h2>Data availability checklist</h2>
-    <div class="row">
-      <span>Account details</span><span class="badge">{{ status }}</span>
-    </div>
-    <div class="row">
-      <span>Media + captions</span><span class="badge">{{ status }}</span>
-    </div>
-    <div class="row"><span>Insights + history</span><span class="badge">May be limited</span></div>
-  </section>
-  <p role="status">Not connected: no account data has been imported.</p>
-  <div class="actions">
-    <a class="button primary" routerLink="/dashboard">Preview Dashboard</a
-    ><button disabled title="Not connected">Retry sync</button
-    ><a class="text-link" routerLink="/step1">Reconnect</a>
-  </div>
+  <h1>Your Instagram connection</h1>
+  @if (username()) {
+    <section class="panel">
+      <h2>&#64;{{ username() }} is connected</h2>
+      <p>Open your dashboard to load your current follower count.</p>
+      <a class="button primary" routerLink="/dashboard">Open dashboard</a>
+    </section>
+  } @else if (error()) {
+    <p role="alert">{{ error() }}</p>
+    <a class="button" routerLink="/step1">Connect Instagram</a>
+  } @else {
+    <p role="status">Checking your saved connection…</p>
+  }
 </main>
