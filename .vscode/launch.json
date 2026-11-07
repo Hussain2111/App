@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Trellis Go backend",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/go-sqlite",
+      "cwd": "${workspaceFolder}/go-sqlite"
+    }
+  ]
+}

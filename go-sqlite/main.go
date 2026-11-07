@@ -11,6 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -65,6 +66,16 @@ func main() {
 	mux.HandleFunc("POST /signup", server.Signup)
 	mux.HandleFunc("POST /logout", logOutUser)
 	mux.HandleFunc("GET /me", server.getHandler)
+
+	OAuth()
+	webhooks := InstagramWebhooks{
+		VerifyToken: os.Getenv("META_WEBHOOK_VERIFY_TOKEN"),
+		AppSecret:   conf.ClientSecret,
+	}
+	mux.HandleFunc("GET /webhooks/instagram", webhooks.Verify)
+	mux.HandleFunc("POST /webhooks/instagram", webhooks.Receive)
+	mux.HandleFunc("GET /auth/instagram/callback", server.Callback)
+	mux.HandleFunc("GET /auth/instagram/start", server.Handlestart)
 
 	fmt.Println("Server is running on http://localhost:8080")
 
