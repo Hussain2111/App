@@ -46,4 +46,6 @@ Updated 8 November 2026. This register records implementation gaps and sprint al
 
 ## Tracking rule
 
+Planning follow-through remains open. Recover the previously referenced 66-story Product Backlog v0.1 or map the current SRS requirements into a single maintained story register. Record actual hours and accepted outcomes at each sprint review before estimating a completion percentage or committing later sprint dates.
+
 Move an item to completed only with a code change or documented decision plus relevant verification. Preserve requirement IDs when deferring work. Sprint 1 completion covers the agreed working connection slice and does not close every authentication/privacy requirement in the full SRS.

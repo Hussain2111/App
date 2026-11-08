@@ -1,5 +1,7 @@
 # Trellis Software Requirements Specification
 
+> Implementation status, 8 November 2026. The current development application uses SQLite and SCS sessions. References below to PostgreSQL describe the earlier technology direction. The full-product requirements remain tracked, including authentication gaps listed in BACKLOG.md. Sprint 1 completion and its acceptance limits are documented in Trellis_Sprint_1_Closeout.md.
+
 Version 1.1 | 24 October 2026 | Status: revised working baseline pending Product Owner approval
 
 # 1. Scope and reference baseline

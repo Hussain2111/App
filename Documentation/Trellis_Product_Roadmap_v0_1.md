@@ -1,5 +1,7 @@
 # Trellis Product Roadmap
 
+> Current forecast added 8 November 2026 in Section 9. Sections 1–8 preserve the October planning baseline. Use the current Sprint 2 plan and BACKLOG.md for active work. The separately named Product Backlog v0.1 is absent from this repository snapshot.
+
 **Version:** 0.1  
 **Date:** 24 October 2026 (Asia/Riyadh)  
 **Status:** Planning baseline agreed in principle; Sprint commitments and Product Owner release acceptance pending  
@@ -99,4 +101,43 @@ At the end of each sprint capture: hours available/spent, completed accepted sto
 - All 9 epics, 66 user stories, 7 spikes and 7 enablers remain on the full backlog. Move stories into a sprint when Ready; do not duplicate or silently demote requirements.
 - **Full-product completion date is intentionally not claimed yet.** Reforecast after Sprint 2 using actual throughput and external dependencies. December 31 is the first meaningful MVP checkpoint, not cessation of work.
 
-**Next action:** Conduct Sprint 0 as detailed in *Trellis Sprint 0 Plan v0.1*; confirm the prioritized initial design flows with the Product Owner.
+**Historical next action:** The original October plan directed Sprint 0 discovery. The active next action is Sprint 2 capability verification under Trellis_Sprint_2_Plan_v0_1.md. The Sprint 0 plan is retained in Archive/.
+
+## 9. Release forecast updated 8 November 2026
+
+The December 31 milestone remains an integrated, demonstrable MVP. There are 53 days from November 8 to December 31, approximately 7.6 weeks. At the earlier planning assumption of 10–20 hours per week, that provides roughly 76–151 gross hours. Availability has not been reconfirmed and actual delivery throughput has not been logged, so this range is a capacity scenario rather than a completion estimate. Reserving 25 percent for integration, testing, interruptions, and fixes would leave roughly 57–114 hours for planned feature work.
+
+### Delivered and pending
+
+| Area | Current evidence | Forecast implication |
+|---|---|---|
+| Trellis identity and Instagram connection | Working development flow, encrypted persistence, returning-user routing, reconnect recovery, and real follower count. Go suite and 31 frontend tests passed at closeout | Foundation milestone reached before the original November 15 review date, with carryover gaps recorded |
+| Dashboard | Layouts and current follower count exist. Overview, Analytics, and Audit implementation now planned in Sprint 2 | Near-term priority. Broader insights/history remain subject to field verification |
+| Refresh/performance/recovery | Initial loading/error and reconnect behavior exists | Dedicated Sprint 2B follows the completed dashboard |
+| Planner and durable drafts | No implemented backend delivery established in the closeout | Separate sprint required |
+| AI Chat and content generation | No working provider-backed end-to-end delivery established by this review | Significant remaining work, including capability and free-tier validation |
+| Competitors, topic discovery, official updates | Requirements and UI designs exist. Permitted live data paths remain unproven in this review | External dependency risk and substantial remaining implementation |
+| Explicit publishing | Requirements exist, but a verified publishing implementation is not established | Capability and safe outcome handling require separate evidence |
+| Privacy, ownership, device acceptance | Partial controls exist. Carryover identifies one-account enforcement, explicit link confirmation, lifecycle controls, and further tests | Must be planned alongside feature delivery |
+
+### Proposed remaining sequence
+
+| Window | Proposed focus | Exit evidence |
+|---|---|---|
+| November 8–14 | Sprint 2 dashboard functionality | Verified metrics, working Overview/Analytics/Audit, truthful coverage and usable failure states |
+| November 15–18 | Sprint 2B | Measured refresh/loading behavior, saved-data recovery, and prioritized performance fixes |
+| November 19–25 | Separate planner sprint | Owned durable drafts, editing, dates/statuses, and session-interruption recovery |
+| November 26–December 9 | Grounded AI and content creation | A working account-scoped question flow and editable image-led draft flow, subject to provider verification |
+| December 10–20 | Highest-priority remaining product breadth | Select ready discovery, competitors, updates, or publishing work based on actual capacity and verified access |
+| December 21–27 | Integration, creator/device acceptance, and critical gaps | End-to-end creator walkthrough with ownership, persistence, and failure checks |
+| December 28–31 | Final MVP evaluation | Capability matrix, known limitations, remaining backlog, and user acceptance |
+
+Only the Sprint 2/2B focus and separate planner scope have been agreed. Dates and later sequencing in this table are a proposed forecast. Reforecast at the end of Sprint 2 using actual hours and accepted outcomes. Earlier Sections 2–3 retain the October cadence for historical comparison.
+
+### Deadline assessment
+
+A coherent MVP by December 31 remains plausible, but confidence is conditional. Completing the entire BRD/SRS to its full acceptance criteria by that date is high risk at the documented capacity. Completing the connection foundation resolves a major dependency, while analytics definitions, stored history, AI behavior, drafts, and external discovery sources still require distinct implementation and verification.
+
+The project is ahead of the original foundation review date. That does not establish that the full product is ahead of schedule. No percentage-complete claim is justified without a maintained story inventory and actual throughput.
+
+At the Sprint 2 review, record available hours, hours spent, accepted panels, access blockers, and defect carryover. If dashboard scope exceeds the week or provider access blocks planned metrics, adjust subsequent windows explicitly. Preserve the final integration period and retain unfinished requirements in BACKLOG.md with clear release-maturity labels.

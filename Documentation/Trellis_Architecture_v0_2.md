@@ -1,5 +1,7 @@
 # Trellis System Architecture and Design Baseline
 
+> Implementation note, 8 November 2026. The working Sprint 1 application uses Angular, Go, SQLite, SCS sessions, and Instagram Unified Login. Backend code is in Backend/. PostgreSQL, durable jobs, and the wider modules below remain architecture proposals. Current startup behavior and route contracts are documented in Trellis_Sprint_1_Closeout.md. Sprint 2 continues with SQLite.
+
 Version 0.2 | 24 October 2026 | Status: Proposed for Product Owner and Technical Lead review
 
 Source baselines: Trellis BRD v1.1 and SRS v1.1, revised on 24 October 2026 from the 22 October v1.0 working documents. This architecture retains all required product capabilities and explicitly distinguishes architectural proposals from validated external feasibility. The Claude and Gemini reviews informed verification mechanisms, not scope changes.
