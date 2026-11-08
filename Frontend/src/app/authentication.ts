@@ -3,13 +3,16 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap, of } from 'rxjs';
 
-
-
 type User = {
     id: number;
     name: string;
     email: string;
 };
+
+type Profile= {
+    insta_ID: string;
+    username: string
+}
 
 @Injectable( {
     providedIn: 'root',
@@ -32,6 +35,10 @@ export class Authentication {
         return this.http.get<User>(`/me`, {}).pipe(
         tap(u => this.user.set(u))
         );
+    }
+
+    fetchProfile() {
+        return this.http.get<Profile>(`/auth/instagram/connection`, {})
     }
 
     login(email: string, password: string) {

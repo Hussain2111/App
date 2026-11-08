@@ -37,6 +37,8 @@
     <span>{{ error() }}</span>
     @if (needsConnection()) {
       <a class="button primary" routerLink="/step1">Connect Instagram</a>
+    } @else {
+      <a class="button primary" href="/auth/instagram/start?return_to=/dashboard">Reconnect Instagram</a>
     }
   </div>
 }

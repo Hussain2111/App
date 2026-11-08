@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -30,6 +31,15 @@ type User struct {
 var sessionManager *scs.SessionManager
 
 func main() {
+	for _, path := range []string{".env.instagram.local", "../.env.token-key.local"} {
+		if err := loadLocalEnv(path); err != nil {
+			log.Fatal(err)
+		}
+	}
+	if os.Getenv("META_APP_SECRET") == "" {
+		log.Fatal("META_APP_SECRET is required. Set it in .env.instagram.local or the environment.")
+	}
+
 	db, err := initDB()
 	if err != nil {
 		log.Println("Error initializing database:", err)
@@ -53,6 +63,9 @@ func main() {
 		return
 	}
 
+	if err := loadTokenEncryptionKey(); err != nil {
+		log.Fatal(err)
+	}
 	server := &Server{db: db}
 
 	sessionManager = scs.New()
@@ -92,7 +105,39 @@ func main() {
 
 }
 
-
+// Existing environment variables take precedence over local development files.
+func loadLocalEnv(path string) error {
+	file, err := os.Open(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("open configuration %s: %w", path, err)
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(strings.TrimPrefix(scanner.Text(), "\ufeff"))
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		name, value, ok := strings.Cut(line, "=")
+		name = strings.TrimSpace(name)
+		if !ok || name == "" {
+			return fmt.Errorf("invalid NAME=value entry in %s", path)
+		}
+		value = strings.TrimSpace(value)
+		if len(value) >= 2 && ((value[0] == '"' && value[len(value)-1] == '"') || (value[0] == '\'' && value[len(value)-1] == '\'')) {
+			value = value[1 : len(value)-1]
+		}
+		if _, exists := os.LookupEnv(name); !exists {
+			if err := os.Setenv(name, value); err != nil {
+				return fmt.Errorf("set configuration variable %s: %w", name, err)
+			}
+		}
+	}
+	return scanner.Err()
+}
 
 func (s *Server) getHandler(w http.ResponseWriter, r *http.Request) {
 	userID := sessionManager.GetInt64(r.Context(), "userID")

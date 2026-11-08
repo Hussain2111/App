@@ -10,7 +10,6 @@
   </section>
   <section class="panel form-card">
     <h2>Sign in</h2>
-    <p>Not connected: authentication is not available yet.</p>
     <form [formGroup]="signInForm" (ngSubmit)="onSubmit()">
       <label for="email">Email address</label
       ><input
@@ -34,7 +33,7 @@
       />
       <p><a class="text-link" routerLink="/recover">Forgot password?</a></p>
       <button class="primary" type="submit">Sign in</button>
-      <p role="status"></p>
+      <p role="status">{{ message() }}</p>
     </form>
     <p style="margin-top: 24px">
       New to Trellis? <a class="text-link" routerLink="/sign-up">Create account</a>

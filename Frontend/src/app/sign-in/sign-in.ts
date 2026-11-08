@@ -1,10 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Header } from '../features/header/header';
 import { Footer } from '../features/footer/footer';
 import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Authentication } from '../authentication';
 import { Router } from '@angular/router';
+import { catchError, switchMap, of, throwError } from 'rxjs';
+import { inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-sign-in',
@@ -15,13 +18,9 @@ import { Router } from '@angular/router';
 
 
 export class SignIn {
-  authentication: Authentication;
-  router: Router;
-
-  constructor(authentication: Authentication, router: Router) {
-    this.authentication = authentication;
-    this.router = router;
-  }
+  message = signal('');
+  private authService = inject(Authentication);
+  private router = inject(Router);
 
  signInForm = new FormGroup({
     email: new FormControl('', {
@@ -33,18 +32,33 @@ export class SignIn {
   });
 
   onSubmit() {
+    this.message.set('');
     const formData = this.signInForm.getRawValue();
     // check for an invalid form before submitting
     if (this.signInForm.invalid) {
-      console.error('Form is invalid:', this.signInForm.errors);
+      this.signInForm.markAllAsTouched();
+      this.message.set('Please complete the required fields and use a password of at least 8 characters.');
       return;
     }
-    this.authentication.login(formData.email, formData.password).subscribe({
-      next: () => {
-        this.router.navigate(['/step1']);
+    this.authService.login(formData.email, formData.password).pipe(
+      switchMap(() =>
+        this.authService.fetchProfile().pipe(
+          catchError((error: HttpErrorResponse) => {
+            if (error.status === 404) {
+              return of(null);
+            }
+            return throwError(() => error);
+          })
+        )
+      )
+    ).subscribe({
+      next: profile => {
+        this.router.navigate([profile ? '/dashboard' : '/step1']);
       },
-      error: (error) => {
-        console.error('Login failed:', error);
+      error: (error: HttpErrorResponse) => {
+        this.message.set(error.status === 401
+          ? 'Sign-in failed or your session expired. Check your email and password and try again.'
+          : 'Unable to complete sign-in. Please try again.');
       }
     });
   }

@@ -6,7 +6,7 @@ Recorded November 7, 2026. Status: functionality recovered, root-cause investiga
 
 Trellis uses Angular, Go, SQLite, SCS sessions, and Instagram API with Unified Login. The intended integration connects a client's professional Instagram account to an authenticated Trellis user. The app and client retain separate business portfolios.
 
-OAuth account discovery now succeeds with the user's earlier oauth.go restored exactly from VS Code local history. Connection persistence and the Angular connection workflow remain work for the user to implement.
+At the investigation milestone, OAuth account discovery succeeded with the user's earlier oauth.go restored exactly from VS Code local history. Connection persistence and the Angular workflow were subsequently implemented in Sprint 1. See Documentation/Trellis_Sprint_1_Closeout.md for the current implementation and Documentation/BACKLOG.md for outstanding work.
 
 The original cause of empty discovery has not been proven. No particular backend change, webhook change, token difference, or Meta-side delay is established as that cause.
 
@@ -95,7 +95,7 @@ The restored snapshot already contained redirect_uri in the exchange, Unix state
 
 ## Current files and evidence limits
 
-- go-sqlite/oauth.go is the restored historical implementation that produced the final successful response above.
+- At the comparison milestone, go-sqlite/oauth.go was the restored historical implementation that produced the final successful response above. The backend has since moved to Backend/ and oauth.go now includes persistence, encryption, profile retrieval, and reconnect routing.
 - oauth_audit.go, oauth_audit_test.go, and INSTAGRAM-AUDIT.md were removed during cleanup.
 - webhooks.go, webhooks_test.go, webhook route registration, proxy configuration, and the ngrok webhook exemption remain.
 - This comparison restored oauth.go only. It did not restore the entire project or Meta configuration to the earlier state.
