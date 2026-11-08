@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "golang.go",
+    "angular.ng-template",
+    "esbenp.prettier-vscode",
+    "openai.chatgpt",
+    "alexcvzz.vscode-sqlite",
+    "Catppuccin.catppuccin-vsc",
+    "usernamehw.errorlens"
+  ],
+  "unwantedRecommendations": ["GitHub.copilot", "GitHub.copilot-chat"]
+}

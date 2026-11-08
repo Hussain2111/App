@@ -7,6 +7,7 @@ Reviewed 8 November 2026. Start a new chat with PROJECT_HANDOFF.md, then the cur
 | Document | Purpose and reason to keep |
 |---|---|
 | [Project handoff](PROJECT_HANDOFF.md) | Durable conversation context, working preferences, decisions, important incidents, verification limits, and the next action for a new chat |
+| [VS Code setup](VSCODE_SETUP.md) | One-command development launch, restart controls, formatting, Codex learning workflow, Explorer organization, theme, terminal fonts, and SQLite viewing |
 | [Sprint 2 plan](Trellis_Sprint_2_Plan_v0_1.md) | Current implementation scope, tasks, dependencies, and acceptance criteria for Overview, Analytics, and Profile Audit |
 | [Working backlog](BACKLOG.md) | Sprint 1 carryover, Sprint 2/2B allocation, and remaining product areas |
 | [Sprint 1 closeout](Trellis_Sprint_1_Closeout.md) | Delivered behavior, verification evidence, startup/configuration instructions, key recovery, and limitations |

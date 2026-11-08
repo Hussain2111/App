@@ -2,12 +2,26 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Trellis Go backend",
+      "name": "Trellis: start everything",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/dev.cjs",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "autoAttachChildProcesses": false,
+      "killBehavior": "polite",
+      "skipFiles": ["<node_internals>/**"],
+      "presentation": { "order": 1 }
+    },
+    {
+      "name": "Trellis: Go breakpoints (requires Delve)",
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceFolder}/go-sqlite",
-      "cwd": "${workspaceFolder}/go-sqlite"
+      "program": "${workspaceFolder}/Backend",
+      "cwd": "${workspaceFolder}/Backend",
+      "console": "integratedTerminal",
+      "presentation": { "order": 2 }
     }
   ]
 }
