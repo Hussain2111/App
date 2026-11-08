@@ -43,7 +43,9 @@
     "**/node_modules": true,
     "**/dist": true,
     "**/coverage": true,
-    "**/.vscode": true
+    "**/.vscode": true,
+    "**/__debug_bin*": true,
+    "**/*.exe": true
   },
   "search.exclude": {
     "**/.angular": true,
@@ -56,6 +58,10 @@
   "explorer.fileNesting.patterns": {
     "package.json": "package-lock.json, angular.json, tsconfig*.json, .postcssrc.json, .prettierrc, .editorconfig",
     "*.ts": "${capture}.spec.ts",
-    "go.mod": "go.sum"
+    "go.mod": "go.sum, .env, .env.*",
+    "*.go": "${capture}_test.go",
+    "main.go": "main_test.go, config_test.go",
+    "*.db": "${capture}.db-journal, ${capture}.db-wal, ${capture}.db-shm",
+    "README.md": ".gitignore, tp.yml, INSTAGRAM-ISSUE.md, .env, .env.*"
   }
 }

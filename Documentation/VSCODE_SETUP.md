@@ -72,7 +72,18 @@ The installed SQLite extension includes a Windows sqlite executable. Its direct 
 
 ## Explorer organization
 
-The workspace hides .angular, .vscode, node_modules, dist, and coverage from Explorer. It groups Angular configuration files beneath package.json, Go's go.sum beneath go.mod, and test files beneath their corresponding TypeScript file.
+The workspace hides .angular, .vscode, node_modules, dist, coverage, generated debug binaries, and executable output from Explorer.
+
+| Area | Explorer grouping |
+|---|---|
+| Root | README.md contains .gitignore, tp.yml, INSTAGRAM-ISSUE.md, and any root environment files |
+| Frontend | package.json contains the lockfile, Angular/TypeScript configuration, and formatting configuration |
+| Backend | go.mod contains go.sum and local environment files |
+| Go sources | Each source file contains its matching test file. main.go also contains config_test.go because configuration loading lives there |
+| TypeScript sources | Each source file contains its matching spec.ts file |
+| SQLite | Each database contains its journal, WAL, and shared-memory sidecar files |
+
+These are Explorer display rules. Database files remain visible for SQLite inspection. The grouping follows the actual folders and does not require moving Go package files or changing imports.
 
 The app.routes.ts file remains visible under Frontend/src/app. Use Ctrl+P and type app.routes.ts to open it directly. Configuration files remain in use. Expand package.json to access the grouped Angular files. Use **Preferences: Open Workspace Settings (JSON)** to change hiding rules or open the workspace configuration despite .vscode being hidden.
 
