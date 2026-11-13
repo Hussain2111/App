@@ -542,8 +542,11 @@ input[type='checkbox'] {
   align-items: flex-start;
   gap: 10px;
 }
-.chat-compose input {
+.chat-compose input,
+.chat-compose textarea {
   margin: 0;
+  min-width: 0;
+  flex: 1;
 }
 .modal-backdrop {
   position: fixed;

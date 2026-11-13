@@ -87,7 +87,7 @@ The current button appears for general profile errors as well as credential fail
 
 ## Configuration and data durability
 
-Run Go from Backend with `go run .`. Startup loads Backend/.env.instagram.local and ../.env.token-key.local. Existing environment variables take precedence. The first file supplies META_APP_SECRET and the webhook verification value. The second supplies TOKEN_ENCRYPTION_KEY as 64 hex characters decoded to 32 bytes. The loader supports quoted or unquoted values, blank lines, and full-line comments.
+Run Go from Backend with `go run .`. Startup loads Backend/.env.instagram.local and Backend/.env.token-key.local. Existing environment variables take precedence. The first file supplies META_APP_SECRET and the webhook verification value. The second supplies TOKEN_ENCRYPTION_KEY as 64 hex characters decoded to 32 bytes. The loader supports quoted or unquoted values, blank lines, and full-line comments.
 
 Generate the encryption key once and keep it consistent across restarts. Encryption uses a fresh nonce for each token. The stored BLOB combines the nonce, ciphertext, and authentication tag. Changing the key does not migrate earlier ciphertext. Preserve the correct key with a separate secure backup if preserving the database.
 

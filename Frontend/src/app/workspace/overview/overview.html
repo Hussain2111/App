@@ -1,0 +1,24 @@
+<section aria-labelledby="opportunities-heading">
+  <h2 id="opportunities-heading">Opportunities to explore</h2>
+  <p>Sample opportunities. Open a note to review and edit its prompt in Chat.</p>
+  <div class="opportunity-notes">
+    @for (opportunity of opportunities; track opportunity.id) {
+      <a
+        class="opportunity-note"
+        routerLink="/chat"
+        [queryParams]="{ opportunity: opportunity.id }"
+      >
+        <span class="sample-label">Sample opportunity</span>
+        <h3>{{ opportunity.title }}</h3>
+        <p>{{ opportunity.observation }}</p>
+        <p class="suggested-action">{{ opportunity.action }}</p>
+        <span class="chat-link">Explore in Chat →</span>
+      </a>
+    }
+  </div>
+</section>
+<section class="panel metric follower-summary" aria-labelledby="followers-heading">
+  <h3 id="followers-heading">Followers</h3>
+  <strong>{{ loading() ? '…' : (profile()?.followers_count ?? '—') }}</strong>
+  <small>{{ profile() ? 'Current total · Instagram' : 'Follower count unavailable' }}</small>
+</section>

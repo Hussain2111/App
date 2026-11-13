@@ -31,7 +31,7 @@ type User struct {
 var sessionManager *scs.SessionManager
 
 func main() {
-	for _, path := range []string{".env.instagram.local", "../.env.token-key.local"} {
+	for _, path := range []string{".env.instagram.local", ".env.token-key.local"} {
 		if err := loadLocalEnv(path); err != nil {
 			log.Fatal(err)
 		}
@@ -93,9 +93,10 @@ func main() {
 	mux.HandleFunc("GET /webhooks/instagram", webhooks.Verify)
 	mux.HandleFunc("POST /webhooks/instagram", webhooks.Receive)
 	mux.HandleFunc("GET /auth/instagram/callback", server.Callback)
-	mux.HandleFunc("GET /auth/instagram/start", server.Handlestart)
-	mux.HandleFunc("GET /auth/instagram/connection", server.HandleConnect)
-	mux.HandleFunc("GET /auth/instagram/profile", server.HandleInstagramProfile)
+	mux.HandleFunc("GET /auth/instagram/start", server.Start)
+	mux.HandleFunc("GET /auth/instagram/connection", server.Connect)
+	mux.HandleFunc("GET /auth/instagram/profile", server.Profile)
+	mux.HandleFunc("GET /auth/instagram/media", server.Media)
 
 	fmt.Println("Server is running on http://localhost:8080")
 

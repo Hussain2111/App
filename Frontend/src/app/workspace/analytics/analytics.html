@@ -1,0 +1,53 @@
+<div class="actions" style="margin-bottom: 24px">
+  <label for="period" style="margin: 0">Period</label
+  ><select id="period" style="width: auto; margin: 0" (change)="period = $any($event.target).value">
+    <option>Last 30 days</option>
+    <option>Last 7 days</option>
+    <option>Last 90 days</option></select
+  ><button disabled title="Not connected">Compare periods</button
+  ><button (click)="coverage = !coverage">Coverage info</button>
+</div>
+@if (coverage) {
+  <div class="notice">
+    {{ period }} · No historical observations or audience permissions available. Missing values are
+    unavailable, rather than zero.
+  </div>
+}
+<div class="grid two">
+  <section class="panel">
+    <h2>Historic metric trend</h2>
+    <div class="empty">
+      <h3>No observations yet</h3>
+      <p>
+        A trend will appear here when verified historical data is available for
+        {{ period.toLowerCase() }}.
+      </p>
+    </div>
+  </section>
+  <section class="panel" style="margin: 0">
+    <h2>Metric freshness</h2>
+    <div class="row"><span>Last observed</span><small>Unavailable</small></div>
+    <div class="row"><span>Last checked</span><small>Never</small></div>
+    <div class="row"><span>Coverage</span><small>Unavailable</small></div>
+  </section>
+</div>
+<div class="grid three" style="margin-top: 24px">
+  @for (
+    title of ['Follower changes', 'Top posts / period comparison', 'Audience breakdown'];
+    track title
+  ) {
+    <section class="panel" style="margin: 0">
+      <h3>{{ title }}</h3>
+      <p>No verified data available for the selected period.</p>
+    </section>
+  }
+</div>
+<div>
+  <ul>
+    @for (item of items(); let i = $index; track item) {
+      <li>{{ i + 1 }}. {{ item }}</li>
+    } @empty {
+      <li>No items</li>
+    }
+  </ul>
+</div>

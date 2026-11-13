@@ -41,7 +41,7 @@ The ngrok traffic policy in tp.yml currently limits browser access to the develo
 
 ## Local configuration
 
-Backend startup reads Backend/.env.instagram.local and the repository-root .env.token-key.local when run from Backend. Existing process environment variables take precedence, including values inherited from an older terminal. Use a fresh terminal or remove an outdated environment variable if a file change appears ineffective.
+Backend startup reads Backend/.env.instagram.local and Backend/.env.token-key.local when run from Backend. Existing process environment variables take precedence, including values inherited from an older terminal. Use a fresh terminal or remove an outdated environment variable if a file change appears ineffective.
 
 Backend/.env.instagram.local contains the following names with actual local values.
 
@@ -50,7 +50,7 @@ META_APP_SECRET=your_local_app_secret
 META_WEBHOOK_VERIFY_TOKEN=your_local_verification_value
 ```
 
-The root .env.token-key.local contains TOKEN_ENCRYPTION_KEY with exactly 64 hexadecimal characters representing 32 bytes. The loader accepts unquoted values and matching single or double quotes. Go validates the decoded key length. Startup requires the app secret and a valid encryption key. Webhook verification requires its configured verification value.
+Backend/.env.token-key.local contains TOKEN_ENCRYPTION_KEY with exactly 64 hexadecimal characters representing 32 bytes. The loader accepts unquoted values and matching single or double quotes. Go validates the decoded key length. Startup requires the app secret and a valid encryption key. Webhook verification requires its configured verification value.
 
 Generate a key once from Backend using `go run ./cmd`, save it locally, and reuse it on subsequent starts. Each encryption still generates a fresh nonce. Keep the key available separately from the database when backing up local data. Environment files and SQLite databases are ignored by Git.
 

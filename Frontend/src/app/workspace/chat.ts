@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { sampleOpportunities } from './overview/sample-opportunities';
 interface Conversation {
   id: number;
   title: string;
@@ -9,7 +10,12 @@ interface Conversation {
 @Component({ selector: 'app-chat', imports: [FormsModule], templateUrl: './chat.html' })
 export class Chat {
   route = inject(ActivatedRoute);
-  input = this.route.snapshot.queryParamMap.get('idea') || '';
+  opportunity = sampleOpportunities.find(
+    (item) => item.id === this.route.snapshot.queryParamMap.get('opportunity'),
+  );
+  input = this.opportunity
+    ? `SAMPLE OPPORTUNITY — fictional content\n\n${this.opportunity.title}\n\nContext\n${this.opportunity.context}\n\nPrompt\n${this.opportunity.prompt}`
+    : this.route.snapshot.queryParamMap.get('idea') || '';
   conversations: Conversation[] = [{ id: 1, title: 'New conversation', messages: [] }];
   active = 1;
   nextId = 2;

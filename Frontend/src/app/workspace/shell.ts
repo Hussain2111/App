@@ -22,7 +22,6 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
         </details>
       </div>
     </header>
-    <div class="demo-strip">FRONTEND WIREFRAME ? Backend not connected</div>
     <main class="page">
       <router-outlet />
     </main>`,

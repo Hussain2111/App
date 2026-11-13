@@ -33,7 +33,7 @@ export const routes: Routes = [
       { path: 'hot-topics/updates', component: Discovery, data: { view: 'updates' }, canMatch: [authGuardGuard] },
       { path: 'competitors', component: Competitors },
       { path: 'competitors/compare', component: Competitors, data: { view: 'compare' }, canMatch: [authGuardGuard] },
-      { path: 'chat', component: Chat },
+      { path: 'chat', component: Chat, canMatch: [authGuardGuard] },
       { path: 'settings', component: Settings, data: { view: 'general' }, canMatch: [authGuardGuard] },
       { path: 'settings/instagram', component: Settings, data: { view: 'instagram' }, canMatch: [authGuardGuard] },
       { path: 'settings/content', component: Settings, data: { view: 'content' }, canMatch: [authGuardGuard] },

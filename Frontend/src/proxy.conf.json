@@ -34,6 +34,9 @@
   "/auth/instagram/connection": {
     "target": "http://127.0.0.1:8080",
     "secure": false
+  },
+  "/auth/instagram/media": {
+    "target": "http://127.0.0.1:8080",
+    "secure": false
   }
-
 }

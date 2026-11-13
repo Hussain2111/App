@@ -13,6 +13,10 @@
 
 ## 1. Sprint goal
 
+### November 9 interaction decision
+
+Prioritize content quality, planning, and relevant ideas while keeping Overview uncluttered. The first UI increment separates Overview, Analytics, and Profile Audit components and retains the existing follower count. Overview uses clearly labelled static sample opportunity notes. Clicking a note opens AI Chat with fictional sample context and an editable suggested prompt. The user must press Send. AI-backed opportunities and additional live data are future work. The recent-post preview remains a proposal requiring agreement. Analytics and Profile Audit retain placeholder content during this increment.
+
 Deliver a usable dashboard across Overview, Analytics, and Profile Audit using the authenticated user's connected Instagram account. Replace the existing placeholders with real measurements, calculated results, and explainable findings wherever verified data is available.
 
 Users should be able to understand their current account, inspect available performance over time, and identify a practical profile or content improvement supported by evidence.

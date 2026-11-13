@@ -49,13 +49,14 @@
     </div>
     <form class="chat-compose" (ngSubmit)="send()">
       <label for="chat-input" class="sr-only">Message</label
-      ><input
+      ><textarea
         id="chat-input"
         name="message"
         [(ngModel)]="input"
         placeholder="Ask Trellis something..."
         autocomplete="off"
-      /><button class="primary" type="submit" [disabled]="!input.trim()">Send ↑</button>
+        rows="6"
+      ></textarea><button class="primary" type="submit" [disabled]="!input.trim()">Send ↑</button>
     </form>
     <small>Preview only · No AI request is sent · No cross-chat memory is enabled</small>
   </div>
