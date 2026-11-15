@@ -11,7 +11,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
         ><a routerLink="/competitors" routerLinkActive="active">Competitors</a>
       </nav>
       <div class="actions">
-        <a class="button" routerLink="/chat" routerLinkActive="active">? Chat</a>
+        <a class="button" routerLink="/chat" routerLinkActive="active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z" /></svg> Chat</a>
         <details class="account-menu">
           <summary aria-label="Account menu">U</summary>
           <div>

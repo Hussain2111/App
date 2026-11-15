@@ -1,14 +1,18 @@
 # Trellis Project Handoff
 
-Updated 8 November 2026, Asia/Riyadh. This is the durable working context distilled from the development conversation through Sprint 1 closeout and Sprint 2 planning. Routine tutorials, repeated checks, and superseded debugging steps have been condensed. Historical findings with unresolved causes are preserved explicitly.
+Updated 15 November 2026, Asia/Riyadh. This handoff preserves decisions and current implementation status. Older sections below describe earlier milestones; use this current-state summary first.
 
 ## Resume here
 
-Sprint 1's development connection flow works, and the user has confirmed the latest reconnection repair. Sprint 2 is planned but has not started implementation. Its scope is Overview, Analytics, and Profile Audit. Sprint 2B will improve performance, refresh, recovery, and loading after the dashboard is implemented. Content Planner has its own later sprint.
+Sprint 1 account connection and session persistence work is retained. Its regression test now checks that the saved Instagram link survives sign-out, a new session, and backend restart; this uses a seeded connection, not a live Meta authorization.
 
-The next concrete task is S2-01 in the Sprint 2 plan. Map each existing dashboard card, chart, filter, and audit section to its required fields and calculations. Retrieve current official Meta documentation and verify actual account capabilities before choosing the data contracts. Record availability, reporting periods, permission requirements, coverage, and unresolved questions. Begin with the working Unified Login integration.
+Sprint 2 Analytics now has week/month metric trends, follower changes, period-filtered paginated posts ranked by the selected metric, and selectable follower/reached/engaged demographics. The user checked the frontend. Automated checks cover request construction and errors; availability of each live demographic combination remains account-dependent. Overview displays current followers and 30 completed UTC-day totals for reach, views and total interactions. Its opportunity notes remain labelled samples pending AI integration.
 
-Before editing, inspect the current repository status and relevant files. This handoff describes a dated state and can become stale as the user develops the project.
+Profile audit is deferred by user request. Its requirements and wireframe were reviewed; no analysis or AI recommendations have been implemented. Period comparison, alternative demographic charts, a separate Top posts metric selector, caching and concurrency are deferred. Daily trend totals currently run sequentially; do not restore the removed optimization abstractions without agreement. The developer wants small, understandable changes and explanations of why they are needed.
+
+Planner is now a frontend prototype: double-click a date (or press Enter) to open an editor overlay, select multiple local images/videos, enter content manually, preview, save temporarily, reopen, edit or delete. The chosen calendar date is fixed for that draft. One temporary draft per date is supported. Drafts/files exist only in component memory and disappear on refresh or leaving Planner. No upload service, database storage, scheduling, publishing, or AI generation exists. There is no separate saved-drafts list; use calendar markers to reopen previews.
+
+Next: user review of the Planner UI, then agree the smallest persistent manual-draft backend step. The user specifically restricted the latest Planner work to frontend changes. Do not implement its backend without new authorization. The December deadline remains 31 December 2026; the full original product scope is not complete.
 
 ## Reading order
 

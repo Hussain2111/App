@@ -1,118 +1,114 @@
-<p class="eyebrow">Dashboard / Planner / {{ view }}</p>
 <div class="page-title">
   <div>
-    <h1>
-      {{
-        view === 'calendar'
-          ? 'Content Planner'
-          : view === 'draft'
-            ? 'Draft editor'
-            : 'Review before publishing'
-      }}
-    </h1>
-    <p>Not connected: drafts, scheduling and publishing require the backend.</p>
+    <h1>Content Planner</h1>
+    <p>Double-click a date to create a draft or preview its saved draft.</p>
   </div>
-  <a class="button" routerLink="/dashboard/planner">Planner</a>
 </div>
-@switch (view) {
-  @case ('calendar') {
-    <div class="grid two">
-      <section class="panel">
-        <div class="actions">
-          <button aria-label="Previous month" (click)="shift(-1)">?</button>
-          <h2>{{ monthLabel }}</h2>
-          <button aria-label="Next month" (click)="shift(1)">?</button>
-        </div>
-        <div class="tabs">
-          <button [class.active]="!week" (click)="week = false">Month view</button
-          ><button [class.active]="week" (click)="week = true">Week view</button>
-        </div>
-        <div class="calendar">
-          @for (day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; track day) {
-            <div class="weekday">{{ day }}</div>
-          }
-          @if (!week) {
-            @for (blank of blanks; track blank) {
-              <div></div>
-            }
-          }
-          @for (day of visibleDays; track day) {
-            <button
-              [class.selected]="selected === day"
-              [attr.aria-pressed]="selected === day"
-              (click)="selected = day"
-            >
-              {{ day }}
-            </button>
-          }
-        </div>
-      </section>
-      <aside class="stack">
-        <section class="panel">
-          <h2>Selected day: {{ selected }}</h2>
-          <p>Scheduling is not connected.</p>
-          <a class="button" routerLink="/dashboard/planner/draft">Preview draft editor</a>
-        </section>
-        <section class="panel">
-          <h2>Saved drafts</h2>
-          <p>Not connected: no drafts loaded.</p>
-          <a class="text-link" routerLink="/dashboard/planner/review">Preview review screen</a>
-        </section>
-      </aside>
+<nav class="tabs" aria-label="Dashboard sections">
+  <a routerLink="/dashboard">Overview</a>
+  <a routerLink="/dashboard/analytics">Analytics</a>
+  <a routerLink="/dashboard/audit">Profile audit</a>
+  <a routerLink="/dashboard/planner" class="active" aria-current="page">Content Planner</a>
+</nav>
+<div class="planner-layout">
+  <section class="panel">
+    <div class="calendar-toolbar">
+      <div class="actions">
+        <button type="button" class="month-arrow" aria-label="Previous month" (click)="shift(-1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+        </button>
+        <h2 aria-live="polite">{{ monthLabel }}</h2>
+        <button type="button" class="month-arrow" aria-label="Next month" (click)="shift(1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>
+        </button>
+      </div>
+      <button type="button" (click)="goToToday()">Today</button>
     </div>
-  }
-  @case ('draft') {
-    <div class="grid equal">
-      <section class="panel">
-        <h2>Source media</h2>
-        <div class="placeholder">Media preview placeholder</div>
-        <label for="format">Format</label
-        ><select id="format" [(ngModel)]="draft.format">
-          <option>Carousel</option>
-          <option>Reel</option>
-          <option>Image</option></select
-        ><label for="date">Planned date</label
-        ><input id="date" type="date" [(ngModel)]="draft.date" />
-      </section>
-      <section class="panel" style="margin: 0">
-        <h2>Caption package / Editable</h2>
-        <label for="hook">Hook</label><input id="hook" [(ngModel)]="draft.hook" /><label
-          for="caption"
-          >Caption</label
-        ><textarea
-          id="caption"
-          [(ngModel)]="draft.caption"
-          placeholder="Fill in your real experience..."
-        ></textarea
-        ><label for="cta">Call to action</label><input id="cta" [(ngModel)]="draft.cta" /><label
-          for="hashtags"
-          >Hashtags</label
-        ><input id="hashtags" [(ngModel)]="draft.hashtags" />
-        <p>
-          Not connected: changes are not saved. Prohibited-expression validation is unavailable.
-        </p>
-        <div class="actions">
-          <button class="primary" disabled>Save draft</button
-          ><a class="button" routerLink="/dashboard/planner/review">Preview review screen</a>
-        </div>
-      </section>
+    <div class="tabs">
+      <button [class.active]="!week" (click)="week = false">Month view</button>
+      <button [class.active]="week" (click)="week = true">Week view</button>
     </div>
-  }
-  @case ('review') {
-    <div class="grid equal">
-      <div class="placeholder">Media preview ? Not connected</div>
-      <section class="panel">
-        <h2>Current draft</h2>
-        <p>No saved content or destination account loaded.</p>
-        <label class="check"
-          ><input type="checkbox" [(ngModel)]="confirmed" />I confirm I reviewed this exact
-          content.</label
-        >
-        <div class="actions">
-          <a class="button" routerLink="/dashboard/planner/draft">Back to editor</a
-          ><button class="primary" disabled>Publish now</button>
-        </div>
-      </section>
+    <div class="calendar">
+      @for (day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; track day) {
+        <div class="weekday">{{ day }}</div>
+      }
+      @for (blank of blanks; track blank) { <div aria-hidden="true"></div> }
+      @for (day of visibleDays; track day) {
+        <button type="button" [class.selected]="selected === day" [class.today]="isToday(day)"
+          [attr.aria-current]="isToday(day) ? 'date' : null" [attr.aria-pressed]="selected === day"
+          [attr.aria-label]="day + ' ' + monthLabel + (hasDraft(day) ? ', saved draft' : ', create draft')"
+          (click)="selected = day" (dblclick)="openDate(day)" (keydown.enter)="openDate(day); $event.preventDefault()">
+          <span class="day-number">{{ day }}</span>
+          @if (isToday(day)) { <span class="today-label">Today</span> }
+          @if (hasDraft(day)) { <span class="draft-label">Draft</span> }
+        </button>
+      }
     </div>
+    <p class="muted">Drafts and uploads are temporary for this planner visit.</p>
+    <p role="status">{{ message() }}</p>
+    <p class="selected-date">Selected: {{ selectedDateLabel }}. Double-click to open, or press Enter on a date.</p>
+  </section>
+
+</div>
+
+<dialog #draftDialog class="draft-dialog" aria-labelledby="draft-heading" (cancel)="closeDraft()">
+  <div class="dialog-heading">
+    <div>
+      <h2 id="draft-heading">{{ step() === 'edit' ? 'Edit draft' : 'Preview draft' }}</h2>
+      <p>{{ selectedDateLabel }}</p>
+    </div>
+    <button type="button" aria-label="Close draft" (click)="closeDraft()">Close</button>
+  </div>
+  @if (step() === 'edit') {
+    <form (ngSubmit)="previewDraft()">
+      <label for="media-files">Images and videos</label>
+      <input id="media-files" type="file" accept="image/*,video/*" multiple (change)="addFiles($event)" />
+      <p class="muted">Choose one or more files. You can add more before previewing.</p>
+      <ul class="upload-list">
+        @for (media of draft.media; track media.url; let i = $index) {
+          <li><span>{{ media.file.name }}</span><button type="button" (click)="removeFile(i)" [attr.aria-label]="'Remove ' + media.file.name">Remove</button></li>
+        }
+      </ul>
+      <label for="format">Format</label>
+      <select id="format" name="format" [(ngModel)]="draft.format">
+        <option>Image</option><option>Reel</option><option>Carousel</option>
+      </select>
+      <p class="muted">Image: one photo. Reel: one video. Carousel: multiple images or videos in a swipeable post.</p>
+      <label for="hook">Hook</label><input id="hook" name="hook" [(ngModel)]="draft.hook" />
+      <label for="caption">Caption</label><textarea id="caption" name="caption" rows="5" [(ngModel)]="draft.caption"></textarea>
+      <label for="cta">Call to action</label><input id="cta" name="cta" [(ngModel)]="draft.cta" />
+      <label for="hashtags">Hashtags</label><input id="hashtags" name="hashtags" [(ngModel)]="draft.hashtags" />
+      @if (uploadError()) { <p role="alert">{{ uploadError() }}</p> }
+      <div class="dialog-actions"><button type="button" (click)="closeDraft()">Cancel</button><button type="submit" class="primary">Preview draft</button></div>
+    </form>
+  } @else {
+    <p class="muted">{{ draft.format }} · Review your content before saving.</p>
+    @if (draft.media[previewIndex()]; as media) {
+      <div class="media-preview">
+        @if (media.file.type.startsWith('video/')) {
+          <video [src]="media.url" controls playsinline preload="metadata" [attr.aria-label]="media.file.name"></video>
+        } @else { <img [src]="media.url" [alt]="media.file.name" /> }
+      </div>
+      @if (draft.media.length > 1) {
+        <div class="preview-navigation">
+          <button type="button" [disabled]="previewIndex() === 0" (click)="previewIndex.set(previewIndex() - 1)">Previous</button>
+          <span>{{ previewIndex() + 1 }} of {{ draft.media.length }}</span>
+          <button type="button" [disabled]="previewIndex() === draft.media.length - 1" (click)="previewIndex.set(previewIndex() + 1)">Next</button>
+        </div>
+      }
+    } @else { <p class="muted">No media attached yet.</p> }
+    <div class="draft-copy">
+      @if (draft.hook) { <p><strong>{{ draft.hook }}</strong></p> }
+      @if (draft.caption) { <p>{{ draft.caption }}</p> }
+      @if (draft.cta) { <p>{{ draft.cta }}</p> }
+      @if (draft.hashtags) { <p>{{ draft.hashtags }}</p> }
+      @if (!draft.hook && !draft.caption && !draft.cta && !draft.hashtags) { <p class="muted">No text added yet.</p> }
+    </div>
+    <p class="muted">Saving keeps this draft only for this planner visit.</p>
+    <div class="dialog-actions">
+      @if (hasDraft(selected)) {
+        <button type="button" class="danger" (click)="deleteDraft()">Delete draft</button>
+      }
+      <button type="button" (click)="step.set('edit')">Back to edit</button><button type="button" class="primary" (click)="saveDraft()">Save draft</button></div>
   }
-}
+</dialog>
