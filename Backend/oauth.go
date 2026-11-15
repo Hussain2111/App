@@ -10,10 +10,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -436,9 +438,7 @@ func (s *Server) helper(w http.ResponseWriter, r *http.Request, param string, id
 	}
 	var instagramID string
 	var encryptedToken []byte
-	err := s.db.QueryRowContext(ctx,
-		"SELECT instagram_id, encrypted_token FROM instagram_connections WHERE user_id = ?", userID,
-	).Scan(&instagramID, &encryptedToken)
+	err := s.db.QueryRowContext(ctx, "SELECT instagram_id, encrypted_token FROM instagram_connections WHERE user_id = ?", userID).Scan(&instagramID, &encryptedToken)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, "", &instagramRequestError{status: http.StatusNotFound, message: "No Instagram connection found"}
 	}
@@ -458,7 +458,6 @@ func (s *Server) helper(w http.ResponseWriter, r *http.Request, param string, id
 	if err != nil {
 		return nil, "", &instagramRequestError{status: http.StatusInternalServerError, message: "Unable to decrypt Instagram token"}
 	}
-
 	if id == "" {
 		id = instagramID
 	}
@@ -473,7 +472,6 @@ func (s *Server) helper(w http.ResponseWriter, r *http.Request, param string, id
 	if err != nil {
 		return nil, "", &instagramRequestError{status: http.StatusBadGateway, message: "Unable to reach Instagram"}
 	}
-
 	return resp, instagramID, nil
 }
 
@@ -503,37 +501,106 @@ func (s *Server) Profile(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(profile)
 }
 
+type MediaPost struct {
+	ID         string       `json:"id"`
+	Caption    string       `json:"caption"`
+	Media_Type string       `json:"media_type"`
+	TimeStamp  string       `json:"timestamp"`
+	PermaLink  string       `json:"permalink"`
+	Insights   PostInsights `json:"insights"`
+}
+
+type MediaResponse struct {
+	Data   []MediaPost `json:"data"`
+	Paging struct {
+		Cursors struct {
+			After string `json:"after"`
+		} `json:"cursors"`
+		Next string `json:"next"`
+	} `json:"paging"`
+}
+
+func (s *Server) collectMedia(
+	w http.ResponseWriter,
+	r *http.Request,
+	start, end time.Time,
+) ([]MediaPost, error) {
+	posts := make([]MediaPost, 0)
+	cursor := ""
+
+	for {
+		params := url.Values{}
+		params.Set("fields", "id,caption,media_type,timestamp,permalink")
+		params.Set("since", strconv.FormatInt(start.Unix(), 10))
+		params.Set("until", strconv.FormatInt(end.Add(-time.Second).Unix(), 10))
+		params.Set("limit", "25")
+
+		// The first request has no cursor.
+		if cursor != "" {
+			params.Set("after", cursor)
+		}
+
+		resp, _, err := s.helper(w, r, "/media?"+params.Encode(), "")
+		if err != nil {
+			return nil, err
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			return nil, fmt.Errorf(
+				"Instagram media request failed: HTTP %d",
+				resp.StatusCode,
+			)
+		}
+
+		var page MediaResponse
+		err = json.NewDecoder(resp.Body).Decode(&page)
+		resp.Body.Close()
+
+		if err != nil {
+			return nil, err
+		}
+
+		posts = append(posts, page.Data...)
+
+		if page.Paging.Next == "" {
+			break
+		}
+
+		nextCursor := page.Paging.Cursors.After
+		if nextCursor == "" || nextCursor == cursor {
+			return nil, fmt.Errorf("Instagram returned an invalid pagination cursor")
+		}
+
+		cursor = nextCursor
+	}
+
+	return posts, nil
+}
+
 func (s *Server) Media(w http.ResponseWriter, r *http.Request) {
 
-	param := "/media?fields=id,caption,media_type,timestamp,permalink,like_count,comments_count&limit=5"
-	resp, _, err := s.helper(w, r, param, "")
+	days := 7
+	switch r.URL.Query().Get("period") {
+	case "week":
+	case "month":
+		days = 30
+	default:
+		http.Error(w, "Period must be week or month", http.StatusBadRequest)
+		return
+	}
+	now := time.Now().UTC()
+	end := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	start := end.AddDate(0, 0, -days)
+
+	posts, err := s.collectMedia(w, r, start, end)
 	if err != nil {
 		writeInstagramError(w, err)
 		return
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		http.Error(w, "Instagram could not return the media. Try again.", http.StatusBadGateway)
-		return
-	}
-	var media struct {
-		Data []struct {
-			ID         string       `json:"id"`
-			Caption    string       `json:"caption"`
-			Media_Type string       `json:"media_type"`
-			TimeStamp  string       `json:"timestamp"`
-			PermaLink  string       `json:"permalink"`
-			Insights   PostInsights `json:"insights"`
-		} `json:"data"`
-	}
 
-	if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&media); err != nil {
-		http.Error(w, "Instagram returned an incomplete media", http.StatusBadGateway)
-		return
-	}
-
-	for i := range media.Data {
-		id := media.Data[i].ID
+	for i := range posts {
+		id := posts[i].ID
 		if id != "" {
 			post_param := "/insights?metric=reach,views,likes,comments,saved,shares,total_interactions"
 			insights, err := s.Insights(w, r, post_param, id)
@@ -541,12 +608,16 @@ func (s *Server) Media(w http.ResponseWriter, r *http.Request) {
 				writeInstagramError(w, err)
 				return
 			}
-			media.Data[i].Insights = insights
+			posts[i].Insights = insights
 		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(media)
+	json.NewEncoder(w).Encode(struct {
+		Data []MediaPost `json:"data"`
+	}{
+		Data: posts,
+	})
 }
 
 type PostInsights struct {

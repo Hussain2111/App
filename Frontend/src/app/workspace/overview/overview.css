@@ -75,7 +75,6 @@
 .opportunity-note p { color: #52604e; line-height: 1.65; }
 .suggested-action { font-weight: 600; }
 .chat-link { margin-top: auto; padding-top: 20px; text-decoration: underline; text-underline-offset: 4px; }
-.follower-summary { max-width: 340px; }
 
 @media (max-width: 720px) {
   .opportunity-notes { grid-template-columns: minmax(0, 440px); gap: 42px; margin-inline: 6px; }
@@ -87,4 +86,9 @@
   .opportunity-note { transition: none; }
   .opportunity-note:hover,
   .opportunity-note:focus-visible { transform: rotate(var(--tilt)); }
+}
+
+/* Grid gaps provide the spacing between cards. */
+.grid > .panel {
+  margin: 0;
 }

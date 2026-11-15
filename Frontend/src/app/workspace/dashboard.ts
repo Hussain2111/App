@@ -5,13 +5,21 @@ import { Overview } from './overview/overview';
 import { Analytics } from './analytics/analytics';
 import { ProfileAudit } from './profile-audit/profile-audit';
 
-interface InstaPosts {
+export interface InstaPosts {
   id: string;
   caption: string;
   media_type: string;
   timestamp: string;
   permalink: string;
-  insights: [];
+  insights: {
+    data: {
+      name: string;
+      period: string;
+      values: {
+        value: number;
+      }[];
+    }[];
+  };
 }
 
 @Component({

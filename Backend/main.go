@@ -97,6 +97,10 @@ func main() {
 	mux.HandleFunc("GET /auth/instagram/connection", server.Connect)
 	mux.HandleFunc("GET /auth/instagram/profile", server.Profile)
 	mux.HandleFunc("GET /auth/instagram/media", server.Media)
+	mux.HandleFunc("GET /api/analytics/trend", server.handleMetrics)
+	mux.HandleFunc("GET /api/analytics/followers", server.handleFollowerCount)
+	mux.HandleFunc("GET /api/analytics/audience", server.handleAudience)
+	mux.HandleFunc("GET /api/analytics/overview", server.handleOverview)
 
 	fmt.Println("Server is running on http://localhost:8080")
 

@@ -1,53 +1,188 @@
-<div class="actions" style="margin-bottom: 24px">
-  <label for="period" style="margin: 0">Period</label
-  ><select id="period" style="width: auto; margin: 0" (change)="period = $any($event.target).value">
-    <option>Last 30 days</option>
-    <option>Last 7 days</option>
-    <option>Last 90 days</option></select
-  ><button disabled title="Not connected">Compare periods</button
-  ><button (click)="coverage = !coverage">Coverage info</button>
-</div>
-@if (coverage) {
-  <div class="notice">
-    {{ period }} · No historical observations or audience permissions available. Missing values are
-    unavailable, rather than zero.
+<div class="analytics-toolbar">
+  <div class="actions">
+    <label for="period" style="margin: 0">Period</label>
+    <select
+      #periodSelect
+      id="period"
+      style="width: auto; margin: 0"
+      [value]="period()"
+      (change)="period.set(periodSelect.value); refresh(); loadAudience()"
+    >
+      <option value="month">Last month</option>
+      <option value="week">Last week</option>
+    </select>
   </div>
-}
-<div class="grid two">
-  <section class="panel">
-    <h2>Historic metric trend</h2>
-    <div class="empty">
-      <h3>No observations yet</h3>
-      <p>
-        A trend will appear here when verified historical data is available for
-        {{ period.toLowerCase() }}.
-      </p>
+  <small class="muted"
+    >Last updated {{ lastUpdated() ? (lastUpdated() | date: 'short') : '—' }}</small
+  >
+</div>
+
+<div class="analytics-sections">
+  <section class="panel" aria-labelledby="trend-heading">
+    <div class="row">
+      <h2 id="trend-heading">Metrics over time</h2>
+      <div class="actions">
+        <label for="trend-metric" style="margin: 0">Metric</label>
+        <select
+          #metricSelect
+          id="trend-metric"
+          style="width: auto; margin: 0"
+          [value]="metric()"
+          (change)="metric.set(metricSelect.value); refresh()"
+        >
+          <option value="reach">Accounts reached</option>
+          <option value="views">Views</option>
+          <option value="likes">Likes</option>
+          <option value="comments">Comments</option>
+          <option value="saves">Saves</option>
+          <option value="shares">Shares</option>
+          <option value="total_interactions">Total interactions</option>
+        </select>
+      </div>
     </div>
-  </section>
-  <section class="panel" style="margin: 0">
-    <h2>Metric freshness</h2>
-    <div class="row"><span>Last observed</span><small>Unavailable</small></div>
-    <div class="row"><span>Last checked</span><small>Never</small></div>
-    <div class="row"><span>Coverage</span><small>Unavailable</small></div>
-  </section>
-</div>
-<div class="grid three" style="margin-top: 24px">
-  @for (
-    title of ['Follower changes', 'Top posts / period comparison', 'Audience breakdown'];
-    track title
-  ) {
-    <section class="panel" style="margin: 0">
-      <h3>{{ title }}</h3>
-      <p>No verified data available for the selected period.</p>
-    </section>
-  }
-</div>
-<div>
-  <ul>
-    @for (item of items(); let i = $index; track item) {
-      <li>{{ i + 1 }}. {{ item }}</li>
-    } @empty {
-      <li>No items</li>
+    @if (loading()) {
+      <div class="empty" role="status">Loading daily measurements…</div>
+    } @else if (error()) {
+      <div class="notice" role="alert">{{ error() }}</div>
+    } @else if (hasMeasurements()) {
+      <p class="muted">{{ metricLabels[metric()] }} · Completed days · UTC interval end dates</p>
+      <div class="trend-chart">
+        <canvas
+          baseChart
+          [data]="chartData()"
+          [options]="chartOptions"
+          [type]="'line'"
+          role="img"
+          [attr.aria-label]="metricLabels[metric()] + ' by daily interval for ' + period()"
+        >
+        </canvas>
+      </div>
+      <details class="trend-values">
+        <summary>View daily values</summary>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Interval ending (UTC)</th>
+              <th scope="col">{{ metricLabels[metric()] }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (point of trend()?.data?.[0]?.values; track point.end_time) {
+              <tr>
+                <td>{{ point.end_time.slice(0, 10) }}</td>
+                <td>{{ point.value ?? 'Unavailable' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </details>
+    } @else {
+      <div class="empty">No measurements available for this period.</div>
     }
-  </ul>
+  </section>
+
+  <section class="panel" aria-labelledby="followers-heading">
+    <h2 id="followers-heading">Follower changes</h2>
+    <dl class="follower-totals">
+      @for (label of ['Follows', 'Unfollows', 'Net change']; track label) {
+        <div>
+          <dt>{{ label }}</dt>
+          <dd>
+            @if (label == 'Follows') {
+              {{ followerVal() }}
+            } @else if (label == 'Unfollows') {
+              {{ unfollowVal() }}
+            } @else {
+              {{ netChange() }}
+            }
+          </dd>
+        </div>
+      }
+    </dl>
+  </section>
+
+  <section class="panel" aria-labelledby="top-posts-heading">
+    <h2 id="top-posts-heading">Top posts</h2>
+    <p class="muted top-posts-description">
+      Posts published {{ period() === 'week' ? 'in the last 7 days' : 'in the last 30 days' }}
+      · Ranked by {{ metricLabels[metric()] }} · Lifetime metrics
+    </p>
+    <ol class="ranked-posts">
+      @for (item of rankedPosts(); track item.post.id; let rank = $index) {
+        <li class="ranked-post">
+          <span class="post-rank" aria-label="Position">{{ rank + 1 }}</span>
+          <div class="post-details">
+            <p class="post-meta">
+              {{ item.post.media_type === 'CAROUSEL_ALBUM' ? 'Carousel' : item.post.media_type === 'VIDEO' ? 'Video' : item.post.media_type === 'IMAGE' ? 'Photo' : 'Post' }}
+              · {{ item.post.timestamp | date: 'd MMM yyyy' : 'UTC' }}
+            </p>
+            <p class="post-caption">{{ item.post.caption || 'Instagram post' }}</p>
+            <a class="post-link" [href]="item.post.permalink" target="_blank" rel="noopener noreferrer">
+              View on Instagram <span class="post-link-hint">(opens in a new tab)</span>
+            </a>
+          </div>
+          <div class="post-measurement">
+            <span class="post-value">{{ item.value ?? 'Unavailable' }}</span>
+            <span class="post-metric">{{ metricLabels[metric()] }}</span>
+          </div>
+        </li>
+      } @empty {
+        <li class="muted">No posts were published in the selected period.</li>
+      }
+    </ol>
+  </section>
+
+  <section class="panel" aria-labelledby="audience-heading">
+    <h2 id="audience-heading">Audience breakdown</h2>
+    <div class="audience-controls">
+      <label for="audience">Audience
+        <select id="audience" #audienceSelect [value]="audience()"
+          (change)="audience.set(audienceSelect.value); loadAudience()">
+          <option value="followers">Followers</option>
+          <option value="reached">Reached audience</option>
+          <option value="engaged">Engaged audience</option>
+        </select>
+      </label>
+      <label for="demographic">Demographic
+        <select id="demographic" #demographicSelect [value]="demographic()"
+          (change)="demographic.set(demographicSelect.value); loadAudience()">
+          <option value="age">Age groups</option>
+          <option value="gender">Gender</option>
+          <option value="country">Countries</option>
+          <option value="city">Cities</option>
+        </select>
+      </label>
+    </div>
+    <p class="muted">
+      {{ audience() === 'followers' ? 'People who follow your account.' : audience() === 'reached'
+        ? 'People who saw your content.' : 'People who interacted with your content.' }}
+      Meta reporting window: last {{ period() === 'week' ? '7' : '30' }} days.
+    </p>
+    @if (audienceLoading()) {
+      <p role="status">Loading audience breakdown…</p>
+    } @else if (audienceError()) {
+      <p role="alert">{{ audienceError() }}</p>
+      <button type="button" class="btn secondary" (click)="loadAudience()">Try again</button>
+    } @else if (audienceRows().length) {
+      <h3>{{ demographicLabels[demographic()] }}</h3>
+      <ul class="audience-results">
+        @for (row of audienceRows(); track row.label) {
+          <li>
+            <div class="audience-result-label">
+              <span>{{ row.label }}</span>
+              <span>{{ row.value | number }} <small class="muted">({{ row.percent | number: '1.0-1' }}%)</small></span>
+            </div>
+            @if (demographic() === 'age' || demographic() === 'gender') {
+              <div class="audience-bar" aria-hidden="true"><span [style.width.%]="row.percent"></span></div>
+            }
+          </li>
+        }
+      </ul>
+      <p class="muted audience-note">Percentages are shares of the demographic counts returned by Instagram.
+        Some accounts are excluded, and location results may be limited. These counts may not match your total audience.</p>
+    } @else {
+      <p>No demographic data is available for this audience and reporting window.
+        Instagram may withhold results when there is not enough audience activity or demographic information.</p>
+    }
+  </section>
 </div>

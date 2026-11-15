@@ -1,9 +1,3 @@
-<p class="eyebrow">
-  Dashboard
-  @if (view !== 'overview') {
-    / {{ view }}
-  }
-</p>
 <div class="page-title">
   <div>
     <h1>
@@ -15,17 +9,7 @@
             : 'Your next opportunity'
       }}
     </h1>
-    <p>
-      {{
-        view === 'overview'
-          ? 'A little clarity on where you are. A direction for what comes next.'
-          : 'Understand the evidence behind your next move.'
-      }}
-    </p>
   </div>
-  <button (click)="refresh()" [disabled]="loading() || mediaLoading()">
-    {{ loading() || mediaLoading() ? 'Loading…' : '↻ Refresh now' }}
-  </button>
 </div>
 <nav class="tabs" aria-label="Dashboard sections">
   <a routerLink="/dashboard" [class.active]="view === 'overview'">Overview</a
@@ -53,9 +37,6 @@
       <a class="button primary" routerLink="/step1">Connect Instagram</a>
     }
   </div>
-}
-@if (profile(); as account) {
-  <p>Connected to &#64;{{ account.username }}</p>
 }
 @switch (view) {
   @case ('overview') {

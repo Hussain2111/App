@@ -17,8 +17,53 @@
     }
   </div>
 </section>
-<section class="panel metric follower-summary" aria-labelledby="followers-heading">
-  <h3 id="followers-heading">Followers</h3>
-  <strong>{{ loading() ? '…' : (profile()?.followers_count ?? '—') }}</strong>
-  <small>{{ profile() ? 'Current total · Instagram' : 'Follower count unavailable' }}</small>
-</section>
+<div class="row">
+  <p class="eyebrow" style="margin: 0">02 / Performance</p>
+  <a class="text-link" routerLink="/dashboard/analytics">View details ↗</a>
+</div>
+<p class="muted">
+  Performance totals · Last 30 completed days
+  @if (performance(); as summary) {
+    · {{ summary.start | date: 'd MMM' : 'UTC' }}–{{ summary.end | date: 'd MMM yyyy' : 'UTC' }} (UTC)
+  }
+</p>
+@if (performanceError()) {
+  <p role="alert">{{ performanceError() }}</p>
+  <button type="button" class="btn secondary" (click)="loadPerformance()">Try again</button>
+}
+<div class="grid four" style="margin: 20px 0 28px">
+  @for (metric of ['Followers', 'Reach', 'Views', 'Engagement']; track metric) {
+    <article class="panel metric">
+      <h3>{{ metric }}</h3>
+      @if (metric === 'Followers') {
+        <strong>{{ loading() ? '…' : ((profile()?.followers_count | number) ?? '—') }}</strong>
+        <small>{{ profile() ? 'Current total · Instagram' : 'Follower count unavailable' }}</small>
+      } @else {
+        <strong>{{ performanceLoading() ? '…' : ((performance()?.totals?.[metricKeys[metric]] | number) ?? '—') }}</strong>
+        <small>
+          @if (performanceLoading()) {
+            Loading…
+          } @else if (performance()?.totals?.[metricKeys[metric]] == null) {
+            Unavailable for this period
+          } @else {
+            {{ metric === 'Reach' ? 'Unique accounts reached' : metric === 'Engagement' ? 'Total interactions' : 'Times content was viewed' }}
+            · Last 30 days
+          }
+        </small>
+      }
+    </article>
+  }
+</div>
+<div class="grid equal">
+  <a class="panel" routerLink="/dashboard/audit"
+    ><p class="eyebrow">03 / Profile audit</p>
+    <h2>A fresh look at your profile ↗</h2>
+    <p>Biography, content patterns and opportunities.</p>
+    <span class="badge">Evidence pending</span></a
+  ><a class="panel" style="margin: 0" routerLink="/dashboard/planner"
+    ><p class="eyebrow">04 / Content Planner</p>
+    <h2>Make space for your next post ↗</h2>
+    <p>Not connected: drafts require the backend.</p>
+    <span class="badge">Not connected: drafts require the backend.</span></a
+  >
+</div>
