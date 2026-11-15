@@ -26,6 +26,9 @@ func TestSessionLifecycle(t *testing.T) {
 		if _, err := CreateUsersTable(db); err != nil {
 			t.Fatal(err)
 		}
+		if _, err := CreateInstaTable(db); err != nil {
+			t.Fatal(err)
+		}
 		if err := CreateSessionsTable(db); err != nil {
 			t.Fatal(err)
 		}
@@ -37,6 +40,7 @@ func TestSessionLifecycle(t *testing.T) {
 		mux.HandleFunc("POST /signup", server.Signup)
 		mux.HandleFunc("POST /signin", server.Signin)
 		mux.HandleFunc("GET /me", server.getHandler)
+		mux.HandleFunc("GET /auth/instagram/connection", server.Connect)
 		mux.HandleFunc("POST /logout", logOutUser)
 		return sessionManager.LoadAndSave(mux), func() { db.Close() }
 	}
@@ -59,6 +63,19 @@ func TestSessionLifecycle(t *testing.T) {
 	credentials := `{"name":"Session Test","email":"session@example.test","password":"test-password-123"}`
 	request("GET", "/me", "", nil, http.StatusUnauthorized)
 	request("POST", "/signup", credentials, nil, http.StatusCreated)
+	// Seed a saved account link independently of the browser session.
+	connectionDB, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = connectionDB.Exec(`INSERT INTO instagram_connections
+		(user_id, instagram_id, username, business_id, encrypted_token)
+		SELECT id, 'test-instagram-id', 'test-creator', 'test-business', ?
+		FROM users WHERE email = 'session@example.test'`, []byte("test-encrypted-token"))
+	connectionDB.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
 	request("POST", "/signin", `{"email":"session@example.test","password":"wrong"}`, nil, http.StatusUnauthorized)
 	signin := request("POST", "/signin", credentials, nil, http.StatusOK)
 	cookies := signin.Result().Cookies()
@@ -83,13 +100,35 @@ func TestSessionLifecycle(t *testing.T) {
 			t.Fatal("response exposes password field")
 		}
 	}
+	checkConnection := func() {
+		t.Helper()
+		response := request("GET", "/auth/instagram/connection", "", cookie, http.StatusOK)
+		var connection struct {
+			ID       string `json:"insta_ID"`
+			Username string `json:"username"`
+		}
+		if err := json.Unmarshal(response.Body.Bytes(), &connection); err != nil {
+			t.Fatal(err)
+		}
+		if connection.ID != "test-instagram-id" || connection.Username != "test-creator" {
+			t.Fatalf("saved Instagram connection changed: %v", connection)
+		}
+	}
 	checkMe()
+	checkConnection()
+	// Losing the browser cookie requires sign-in, while the account link stays saved.
+	request("GET", "/auth/instagram/connection", "", nil, http.StatusUnauthorized)
 	// Reopen the database with a new manager to simulate a backend restart.
 	closeApp()
 	app, closeApp = openApp()
 	checkMe()
+	checkConnection()
 	request("POST", "/logout", "", cookie, http.StatusOK)
 	// Even replaying the old cookie must fail after logout.
 	request("GET", "/me", "", cookie, http.StatusUnauthorized)
+	request("GET", "/auth/instagram/connection", "", cookie, http.StatusUnauthorized)
+	signin = request("POST", "/signin", credentials, nil, http.StatusOK)
+	cookie = signin.Result().Cookies()[0]
+	checkConnection()
 	request("GET", "/logout", "", nil, http.StatusMethodNotAllowed)
 }
